@@ -14,6 +14,7 @@ import { initDevour, tickTraits } from "./skills/devour.js";
 import { initActiveSkills, ensureGrimoire } from "./skills/activeSkills.js";
 import { initShadows, tickShadows } from "./skills/shadowArmy.js";
 import { initGates, tickGates } from "./dungeons/gates.js";
+import { initBreaks, tickBreaks } from "./dungeons/breaks.js";
 import { initMenus } from "./ui/menus.js";
 
 const NS = CONFIG.NAMESPACE;
@@ -22,7 +23,7 @@ const DP_AWAKENED = `${NS}:awakened`;
 // ------------------------------------------------------------
 // Log de inicialização — visível no Log de Conteúdo (Content Log)
 // ------------------------------------------------------------
-console.log("[ARISE] Script carregado. Fase 8A (skills ativas) ativa.");
+console.log("[ARISE] Script carregado. Fase 8B (rupturas) ativa.");
 
 // A ordem define a ordem das seções no menu principal
 initMenus();
@@ -34,6 +35,7 @@ initActiveSkills();
 initShadows();
 initClasses();
 initGates();
+initBreaks();
 
 // ------------------------------------------------------------
 // Entrada do jogador: despertar (1ª vez) + entrega do Núcleo
@@ -91,10 +93,11 @@ system.runInterval(() => {
     const players = world.getAllPlayers();
     for (const p of players) {
       try {
-        // tickDaily cuida da missão diária e da penalidade; retorna
-        // true quando o jogador está na Zona (HUD própria da zona)
+        // tickDaily (penalidade) e tickBreaks (ruptura) retornam true
+        // quando exibem HUD própria — o HUD de stats cede a vez
         const emPenalidade = tickDaily(p, ciclo);
-        if (!emPenalidade) tickHud(p);
+        const emRuptura = tickBreaks(p, ciclo);
+        if (!emPenalidade && !emRuptura) tickHud(p);
         tickShadows(p, ciclo);
       } catch (e) {
         console.error("[ARISE] Erro em tick de jogador: " + e);

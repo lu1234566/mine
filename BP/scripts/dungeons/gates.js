@@ -32,6 +32,11 @@ function findPlayer(id) {
   return world.getAllPlayers().find((p) => p.id === id);
 }
 
+// usado pelo breaks.js para não disparar ruptura dentro de portal
+export function isInGate(playerId) {
+  return gate !== null && gate.playerId === playerId;
+}
+
 // ---------- abertura ----------
 function consumeKey(player) {
   try {
@@ -58,6 +63,9 @@ function tryOpenGate(player, rank) {
   }
   if (!consumeKey(player)) return;
 
+  // Portal Vermelho (8B): raro; a saída só libera derrotando o Guardião
+  const vermelho = Math.random() < CONFIG.BREAKS.RED_CHANCE;
+
   const loc = player.location;
   gate = {
     rank,
@@ -68,14 +76,24 @@ function tryOpenGate(player, rank) {
     delayTicks: 0,
     until: Date.now() + G.TIMEOUT_MS,
     built: false,
+    red: vermelho,
   };
 
-  player.onScreenDisplay.setTitle(`§5[ PORTAL ${rank} ]`, {
-    subtitle: "§fA fenda se abre...",
-    fadeInDuration: 5, stayDuration: 50, fadeOutDuration: 15,
-  });
-  player.playSound("portal.travel", { volume: 0.6 });
-  player.sendMessage(MSG + `§5Portal Rank ${rank} aberto. Sobreviva às ondas e derrote o Guardião.`);
+  if (vermelho) {
+    player.onScreenDisplay.setTitle("§4[ PORTAL VERMELHO ]", {
+      subtitle: "§cA fenda se LACRA atrás de você. Só o Guardião abre a saída.",
+      fadeInDuration: 5, stayDuration: 80, fadeOutDuration: 20,
+    });
+    player.playSound("mob.enderdragon.growl", { volume: 0.5 });
+    player.sendMessage(MSG + `§4Portal VERMELHO Rank ${rank}! §cNão há retorno sem vitória.`);
+  } else {
+    player.onScreenDisplay.setTitle(`§5[ PORTAL ${rank} ]`, {
+      subtitle: "§fA fenda se abre...",
+      fadeInDuration: 5, stayDuration: 50, fadeOutDuration: 15,
+    });
+    player.playSound("portal.travel", { volume: 0.6 });
+    player.sendMessage(MSG + `§5Portal Rank ${rank} aberto. Sobreviva às ondas e derrote o Guardião.`);
+  }
 
   // queda lenta enquanto a arena é montada no chunk que o próprio
   // jogador carrega ao chegar
@@ -240,8 +258,14 @@ export function tickGates(ciclo) {
     if (player.dimension.id !== "minecraft:overworld" ||
         Math.abs(player.location.x - c.x) > 60 ||
         Math.abs(player.location.z - c.z) > 60) {
-      closeGate(false, "§cVocê abandonou o portal. A instância colapsou.");
-      return;
+      if (gate.red && gate.phase !== "reward") {
+        // Portal Vermelho: não há fuga — de volta para dentro
+        player.teleport(c, { dimension: overworld() });
+        player.sendMessage(MSG + "§4A fenda vermelha não permite fuga.");
+      } else {
+        closeGate(false, "§cVocê abandonou o portal. A instância colapsou.");
+        return;
+      }
     }
 
     if (gate.phase === "delay") {
@@ -327,7 +351,9 @@ export function initGates() {
     try {
       if (ev.initialSpawn) return;
       if (gate && gate.playerId === ev.player.id) {
-        closeGate(false, "§cVocê caiu dentro do portal. A instância colapsou.");
+        closeGate(false, gate.red
+          ? "§4O Portal Vermelho o cuspiu. A chave foi consumida pela fenda."
+          : "§cVocê caiu dentro do portal. A instância colapsou.");
       }
     } catch (e) {
       console.error("[ARISE] Erro em playerSpawn(gates): " + e);

@@ -379,6 +379,20 @@ export const CONFIG = {
     },
   },
 
+  // --- Rupturas de portal (Fase 8B) ---
+  BREAKS: {
+    DIAS: 3,             // idade máxima de uma chave (dias reais)
+    // DEBUG: se > 0, substitui a idade máxima por este valor em ms
+    // (ex.: 60000 = ruptura após 1 minuto). SEMPRE volte para 0!
+    DEBUG_FORCE_MS: 0,
+    CHECK_EVERY: 120,    // ciclos do MAIN entre reconciliações (60 s)
+    DURATION_MS: 3 * 60 * 1000, // sobreviver X ou limpar os mobs
+    REWARD_XP_PCT: 0.3,  // % do XP do portal daquele rank
+    REWARD_CRYSTALS: 1,
+    RED_CHANCE: 0.05,    // chance de qualquer portal aberto ser vermelho
+    TAG: "arise_break",
+  },
+
   // Mensagens do Sistema
   MESSAGES: {
     AWAKENING_TITLE: "§b[ SISTEMA ]",
