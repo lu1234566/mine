@@ -4,7 +4,7 @@ Sistema de progressão RPG inspirado em mangás de "sistema de níveis" e evolu�
 
 **Alvo:** Minecraft Bedrock — desenvolvido/testado no Android (Chromebook), instalado no Nintendo Switch (desbloqueado) via injeção de save com JKSV.
 
-**Estado atual: Fase 1 (esqueleto).** O pack carrega, exibe a sequência de "despertar" no primeiro login e mantém o loop principal pronto para as próximas fases.
+**Estado atual: Fase 2 (stats).** Além do despertar da Fase 1: XP por abate, níveis com curva exponencial, atributos (Força/Vitalidade/Agilidade/Percepção/Mana), HUD no actionbar, mana com regeneração e menu de distribuição de pontos via item "Núcleo do Sistema". Checklists de teste por fase: `docs/CHECKLISTS.md`.
 
 **Toggles experimentais necessários: NENHUM.** A Fase 1 usa apenas módulos estáveis (`@minecraft/server` 1.13.0 e `@minecraft/server-ui` 1.1.0). Se alguma fase futura exigir um experimento, isso será destacado aqui e no checklist da fase.
 
@@ -26,7 +26,7 @@ Regras do projeto: API estável (`@minecraft/server` 1.x), JS puro sem bundler, 
 ## Roadmap de fases
 
 1. ✅ Esqueleto: manifests, despertar, CI, empacotamento
-2. Stats: XP, nível, atributos, HUD (actionbar), mana, menu de pontos
+2. ✅ Stats: XP, nível, atributos, HUD (actionbar), mana, menu de pontos
 3. Missão diária + zona de penalidade
 4. Devorar: fragmentos de essência, traços, primeira evolução
 5. Exército de sombras: extração, entidades custom, comandos, reserva

@@ -1,0 +1,21 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "arise:system_core",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:max_stack_size": 1,
+      "minecraft:icon": "arise_system_core",
+      "minecraft:display_name": {
+        "value": "item.arise.system_core"
+      },
+      "minecraft:glint": true,
+      "minecraft:hand_equipped": false,
+      "minecraft:stacked_by_data": false
+    }
+  }
+}

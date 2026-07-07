@@ -1,3 +1,7 @@
 ## ARISE — Resource Pack (pt_BR)
 pack.name=ARISE — Resource Pack
 pack.description=Texturas, entidades e textos do add-on ARISE.
+
+## Itens
+item.arise.system_core=Núcleo do Sistema
+item.arise:system_core.name=Núcleo do Sistema

@@ -1,43 +1,42 @@
 // ============================================================
-// ARISE — main.js (Fase 1: esqueleto)
-// Responsabilidades desta fase:
-//   1. Confirmar que o pack de script carregou (log + mensagem).
-//   2. Detectar primeiro login do jogador e exibir o "despertar".
-//   3. Estabelecer o loop principal (vazio por enquanto, será
-//      preenchido nas fases seguintes).
+// ARISE — main.js (bootstrap)
+// Registra os módulos e mantém UM único loop principal.
+// Fase atual: 2 (stats). Fases seguintes se conectam aqui.
 // ============================================================
 
 import { world, system } from "@minecraft/server";
 import { CONFIG } from "./config.js";
+import { initStats, tickHud, tickEffects, ensureSystemCore } from "./player/stats.js";
+import { initMenus } from "./ui/menus.js";
 
 const NS = CONFIG.NAMESPACE;
-// Chave de dynamic property que marca que o jogador já despertou
 const DP_AWAKENED = `${NS}:awakened`;
 
 // ------------------------------------------------------------
 // Log de inicialização — visível no Log de Conteúdo (Content Log)
 // ------------------------------------------------------------
-console.log("[ARISE] Script carregado com sucesso. Fase 1 ativa.");
+console.log("[ARISE] Script carregado. Fase 2 (stats) ativa.");
+
+initMenus();
+initStats();
 
 // ------------------------------------------------------------
-// Despertar: roda quando o jogador entra e o spawn é concluído
+// Entrada do jogador: despertar (1ª vez) + entrega do Núcleo
 // ------------------------------------------------------------
 world.afterEvents.playerSpawn.subscribe((ev) => {
   try {
     if (!ev.initialSpawn) return; // ignora respawns após morte
     const player = ev.player;
 
+    ensureSystemCore(player);
+
     const jaDespertou = player.getDynamicProperty(DP_AWAKENED) === true;
-
     if (!jaDespertou) {
-      // Primeiro login neste mundo: sequência de despertar
       player.setDynamicProperty(DP_AWAKENED, true);
-
       // Pequeno atraso para garantir que o cliente já renderizou o HUD
       system.runTimeout(() => {
         try {
-          // O jogador pode ter saído do mundo durante o atraso
-          if (!player.isValid()) return;
+          if (!player.isValid()) return; // jogador pode ter saído no atraso
           player.onScreenDisplay.setTitle(CONFIG.MESSAGES.AWAKENING_TITLE, {
             subtitle: CONFIG.MESSAGES.AWAKENING_SUBTITLE,
             fadeInDuration: 10,
@@ -47,17 +46,17 @@ world.afterEvents.playerSpawn.subscribe((ev) => {
           player.playSound("beacon.activate");
           player.sendMessage(
             CONFIG.MESSAGES.SYSTEM_PREFIX +
-              "§fBem-vindo, §d" + player.name + "§f. Sua jornada começa agora."
+              "§fBem-vindo, §d" + player.name +
+              "§f. Toque o §dNúcleo do Sistema§f no inventário para abrir o menu."
           );
         } catch (e) {
           console.error("[ARISE] Erro na sequência de despertar: " + e);
         }
-      }, 40); // ~2 segundos após o spawn
+      }, 40);
     } else {
-      // Login recorrente: saudação curta
-      player.sendMessage(
-        CONFIG.MESSAGES.SYSTEM_PREFIX + "§7Sistema online. Fase 1 (esqueleto)."
-      );
+      player.sendMessage(CONFIG.MESSAGES.SYSTEM_PREFIX + "§7Sistema online.");
+      // Reaplica os efeitos de atributo sem esperar o loop lento
+      tickEffects(player);
     }
   } catch (e) {
     console.error("[ARISE] Erro em playerSpawn: " + e);
@@ -65,14 +64,32 @@ world.afterEvents.playerSpawn.subscribe((ev) => {
 });
 
 // ------------------------------------------------------------
-// Loop principal — placeholder da Fase 1.
-// Nas próximas fases: HUD (actionbar), regen de mana, timers de
-// missão diária, manutenção de sombras.
+// Loop principal — ÚNICO runInterval do add-on.
+// A cada MAIN ticks: HUD + mana. A cada EFFECTS_EVERY ciclos:
+// reaplicação dos efeitos de atributo.
 // ------------------------------------------------------------
+let ciclo = 0;
 system.runInterval(() => {
   try {
-    // Fase 2 preencherá este loop.
+    ciclo++;
+    const players = world.getAllPlayers();
+    for (const p of players) {
+      try {
+        tickHud(p);
+      } catch (e) {
+        console.error("[ARISE] Erro em tickHud: " + e);
+      }
+    }
+    if (ciclo % CONFIG.INTERVALS.EFFECTS_EVERY === 0) {
+      for (const p of players) {
+        try {
+          tickEffects(p);
+        } catch (e) {
+          console.error("[ARISE] Erro em tickEffects: " + e);
+        }
+      }
+    }
   } catch (e) {
     console.error("[ARISE] Erro no loop principal: " + e);
   }
-}, CONFIG.TICK_INTERVAL);
+}, CONFIG.INTERVALS.MAIN);
