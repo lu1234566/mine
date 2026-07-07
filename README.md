@@ -4,7 +4,7 @@ Sistema de progressão RPG inspirado em mangás de "sistema de níveis" e evolu�
 
 **Alvo:** Minecraft Bedrock — desenvolvido/testado no Android (Chromebook), instalado no Nintendo Switch (desbloqueado) via injeção de save com JKSV.
 
-**Estado atual: Fase 8 (v0.8.3).** Fases 1–7 completas (despertar, stats/HUD/mana, missão diária + Zona de Penalidade, Devorar/traços, evolução em 2 estágios, Exército de Sombras, Portais E–S) + Fase 8: **habilidades ativas** via Grimório (Impulso, Golpe Fantasma, Ocultação, Dreno Sombrio, Clarividência), **Rupturas** de chaves envelhecidas + Portal Vermelho, e **Fusão de sombras** com tier Elite e nomes próprios. Checklists de teste por fase: `docs/CHECKLISTS.md`.
+**Estado atual: Fase 8C+ (v0.8.6).** Fases 1–7 completas (despertar, stats/HUD/mana, missão diária + Zona de Penalidade, Devorar/traços, evolução em 2 estágios, Exército de Sombras, Portais E–S) + Fase 8: **habilidades ativas** via Grimório (Impulso, Golpe Fantasma, Ocultação, Dreno Sombrio, Clarividência), **Rupturas** de chaves envelhecidas + Portal Vermelho, **Fusão de sombras** com tier Elite e nomes próprios, e texturas por tier/rank para sombras e Guardião. Checklists de teste por fase: `docs/CHECKLISTS.md`.
 
 **Toggles experimentais necessários: NENHUM.** Todas as fases usam apenas módulos estáveis (`@minecraft/server` 1.13.0 e `@minecraft/server-ui` 1.1.0). Se alguma fase futura exigir um experimento, isso será destacado aqui e no checklist da fase.
 
@@ -32,7 +32,7 @@ Regras do projeto: API estável (`@minecraft/server` 1.x), JS puro sem bundler, 
 5. ✅ Exército de sombras: extração, entidades custom, comandos, reserva
 6. ✅ Portais rank E–C com arena
 7. ✅ Balanceamento, ranks B–S, segunda linha de evolução, polish
-8. ✅ Expansão: 8A skills ativas · 8B rupturas/Portal Vermelho · 8C fusão de sombras
+8. ✅ Expansão: 8A skills ativas · 8B rupturas/Portal Vermelho · 8C fusão de sombras · 8D texturas por tier/rank
 
 ---
 

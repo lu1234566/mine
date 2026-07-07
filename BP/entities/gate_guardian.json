@@ -30,6 +30,18 @@
       "arise:rank_s": {
         "minecraft:health": { "value": 500, "max": 500 },
         "minecraft:attack": { "damage": 28 }
+      },
+      "arise:visual_t1": {
+        "minecraft:variant": { "value": 0 }
+      },
+      "arise:visual_t2": {
+        "minecraft:variant": { "value": 1 }
+      },
+      "arise:visual_t3": {
+        "minecraft:variant": { "value": 2 }
+      },
+      "arise:visual_elite": {
+        "minecraft:variant": { "value": 3 }
       }
     },
     "components": {
@@ -37,6 +49,7 @@
       "minecraft:nameable": { "always_show": true, "allow_name_tag_renaming": false },
       "minecraft:collision_box": { "width": 0.8, "height": 2.4 },
       "minecraft:scale": { "value": 1.35 },
+      "minecraft:variant": { "value": 0 },
       "minecraft:health": { "value": 60, "max": 60 },
       "minecraft:attack": { "damage": 6 },
       "minecraft:movement": { "value": 0.27 },
@@ -78,12 +91,12 @@
       "minecraft:behavior.random_look_around": { "priority": 8 }
     },
     "events": {
-      "arise:rank_e": { "add": { "component_groups": ["arise:rank_e"] } },
-      "arise:rank_d": { "add": { "component_groups": ["arise:rank_d"] } },
-      "arise:rank_c": { "add": { "component_groups": ["arise:rank_c"] } },
-      "arise:rank_b": { "add": { "component_groups": ["arise:rank_b"] } },
-      "arise:rank_a": { "add": { "component_groups": ["arise:rank_a"] } },
-      "arise:rank_s": { "add": { "component_groups": ["arise:rank_s"] } }
+      "arise:rank_e": { "add": { "component_groups": ["arise:rank_e", "arise:visual_t1"] } },
+      "arise:rank_d": { "add": { "component_groups": ["arise:rank_d", "arise:visual_t2"] } },
+      "arise:rank_c": { "add": { "component_groups": ["arise:rank_c", "arise:visual_t3"] } },
+      "arise:rank_b": { "add": { "component_groups": ["arise:rank_b", "arise:visual_t3"] } },
+      "arise:rank_a": { "add": { "component_groups": ["arise:rank_a", "arise:visual_elite"] } },
+      "arise:rank_s": { "add": { "component_groups": ["arise:rank_s", "arise:visual_elite"] } }
     }
   }
 }

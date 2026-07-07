@@ -126,3 +126,13 @@ Nenhuma fase exige toggle experimental — se o jogo pedir, é bug: reporte.
 7. Elite NÃO aparece como opção de fusão (é o teto) e sombra nunca chega a Elite por XP (T3 é o máximo por combate).
 8. Deixe uma sombra NOMEADA morrer → mensagem "ferida por 10 min"; na reserva ela aparece `✚ ferida — Xm` e invocá-la é recusado até o tempo passar. Sombra sem nome continua voltando à reserva na hora.
 9. Relogar → nomes, tiers, feridas e reserva persistem. Sem erros `[ARISE]` (procure `openFusion` no log se o menu falhar).
+
+## Fase 8D — Texturas por tier das sombras (v0.8.6)
+
+1. Reimportar o pack → na tela de packs a versão deve mostrar **0.8.6**. Se mostrar antiga, remova o pack anterior e importe o novo `.mcaddon`.
+2. Invocar/obter **Sombra Guerreira** T1, T2, T3 e Elite; confirmar que cada tier tem textura diferente e que o nametag continua correto.
+3. Invocar/obter **Sombra Arqueira** T1, T2, T3 e Elite; confirmar que cada tier tem textura diferente e que a arqueira continua atacando à distância.
+4. Abrir portais **E/D/C/B/A/S** e conferir variação visual do Guardião: E = T1, D = T2, C/B = T3, A/S = Elite.
+5. Conferir sintomas visuais: rosa/preto = caminho de textura errado; textura embaralhada = problema UV/geometria; sempre T1 = variant não aplicado; nome muda mas textura não = script salvou tier, mas não disparou evento visual.
+6. Relogar, dispensar e invocar sombras da reserva para conferir que o visual é reaplicado pelo tier salvo em `arise:shadows`.
+7. Rodar uma luta curta com sombras e Guardião; confirmar que não há erros `[ARISE]` no Log de Conteúdo.

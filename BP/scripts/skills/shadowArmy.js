@@ -49,6 +49,11 @@ export function nameFor(rec) {
   return `${base} §8[${rotulo}]`;
 }
 
+function visualEventForTier(tier) {
+  if (tier >= CONFIG.FUSION.ELITE_TIER) return "arise:visual_elite";
+  return `arise:visual_t${Math.max(1, Math.min(tier, 3))}`;
+}
+
 // ---------- mortes recentes (janela de extração) ----------
 const recentDeaths = new Map(); // playerId -> [{typeId, type, loc, dimId, t}]
 
@@ -85,6 +90,7 @@ function spawnShadow(player, rec, loc) {
   ent.addTag(ownTag(player));
   ent.addTag(`arise_sid_${rec.id}`);
   ent.nameTag = nameFor(rec);
+  ent.triggerEvent(visualEventForTier(rec.tier));
   if (rec.tier >= 2) ent.triggerEvent(`arise:tier${Math.min(rec.tier, 3)}`);
   // Elite (8C): efeitos extras "permanentes" + tag p/ partícula ambiente
   if (rec.tier >= CONFIG.FUSION.ELITE_TIER) {
@@ -338,6 +344,7 @@ function onShadowKill(shadow, dead) {
     rec.tier = Math.min(novoTier, 3);
     try {
       shadow.triggerEvent(`arise:tier${rec.tier}`);
+      shadow.triggerEvent(visualEventForTier(rec.tier));
       shadow.nameTag = nameFor(rec);
       owner.playSound("beacon.power");
       owner.sendMessage(MSG + `§5Sua ${SH.TYPES[rec.type].nome} evoluiu para o §fTier ${rec.tier}§5!`);

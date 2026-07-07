@@ -4,7 +4,12 @@
     "description": {
       "identifier": "arise:shadow_warrior",
       "materials": { "default": "zombie" },
-      "textures": { "default": "textures/entity/sombra_guerreira" },
+      "textures": {
+        "t1": "textures/entity/sombra_guerreira_t1",
+        "t2": "textures/entity/sombra_guerreira_t2",
+        "t3": "textures/entity/sombra_guerreira_t3",
+        "elite": "textures/entity/sombra_guerreira_elite"
+      },
       "geometry": { "default": "geometry.arise_shadow" },
       "scripts": {
         "pre_animation": [
@@ -18,7 +23,7 @@
         "look_at_target": "animation.humanoid.look_at_target.default",
         "attack": "animation.zombie.attack_bare_hand"
       },
-      "render_controllers": ["controller.render.zombie"]
+      "render_controllers": ["controller.render.arise_shadow_warrior"]
     }
   }
 }

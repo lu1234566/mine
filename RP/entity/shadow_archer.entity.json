@@ -4,7 +4,12 @@
     "description": {
       "identifier": "arise:shadow_archer",
       "materials": { "default": "zombie" },
-      "textures": { "default": "textures/entity/sombra_arqueira" },
+      "textures": {
+        "t1": "textures/entity/sombra_arqueira_t1",
+        "t2": "textures/entity/sombra_arqueira_t2",
+        "t3": "textures/entity/sombra_arqueira_t3",
+        "elite": "textures/entity/sombra_arqueira_elite"
+      },
       "geometry": { "default": "geometry.arise_shadow" },
       "scripts": {
         "pre_animation": [
@@ -17,7 +22,7 @@
         "move": "animation.humanoid.move",
         "look_at_target": "animation.humanoid.look_at_target.default"
       },
-      "render_controllers": ["controller.render.zombie"]
+      "render_controllers": ["controller.render.arise_shadow_archer"]
     }
   }
 }

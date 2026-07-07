@@ -1,0 +1,35 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.arise_shadow_archer": {
+      "arrays": {
+        "textures": {
+          "Array.skins": ["Texture.t1", "Texture.t2", "Texture.t3", "Texture.elite"]
+        }
+      },
+      "geometry": "Geometry.default",
+      "materials": [{ "*": "Material.default" }],
+      "textures": ["Array.skins[query.variant]"]
+    },
+    "controller.render.arise_shadow_warrior": {
+      "arrays": {
+        "textures": {
+          "Array.skins": ["Texture.t1", "Texture.t2", "Texture.t3", "Texture.elite"]
+        }
+      },
+      "geometry": "Geometry.default",
+      "materials": [{ "*": "Material.default" }],
+      "textures": ["Array.skins[query.variant]"]
+    },
+    "controller.render.arise_gate_guardian": {
+      "arrays": {
+        "textures": {
+          "Array.skins": ["Texture.t1", "Texture.t2", "Texture.t3", "Texture.elite"]
+        }
+      },
+      "geometry": "Geometry.default",
+      "materials": [{ "*": "Material.default" }],
+      "textures": ["Array.skins[query.variant]"]
+    }
+  }
+}
