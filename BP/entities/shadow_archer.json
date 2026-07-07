@@ -74,8 +74,14 @@
     "events": {
       "arise:wait": { "add": { "component_groups": ["arise:waiting"] } },
       "arise:follow": { "remove": { "component_groups": ["arise:waiting"] } },
-      "arise:tier2": { "add": { "component_groups": ["arise:tier2"] } },
-      "arise:tier3": { "add": { "component_groups": ["arise:tier3"] } },
+      "arise:tier2": {
+        "remove": { "component_groups": ["arise:tier3"] },
+        "add": { "component_groups": ["arise:tier2"] }
+      },
+      "arise:tier3": {
+        "remove": { "component_groups": ["arise:tier2"] },
+        "add": { "component_groups": ["arise:tier3"] }
+      },
       "arise:visual_t1": {
         "remove": { "component_groups": ["arise:visual_t2", "arise:visual_t3", "arise:visual_elite"] },
         "add": { "component_groups": ["arise:visual_t1"] }
