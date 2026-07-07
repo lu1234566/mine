@@ -9,7 +9,7 @@
     },
     "components": {
       "minecraft:max_stack_size": 16,
-      "minecraft:icon": "arise_gate_key_b",
+      "minecraft:icon": "arise:chave_portal_b",
       "minecraft:display_name": {
         "value": "item.arise.gate_key_b"
       },

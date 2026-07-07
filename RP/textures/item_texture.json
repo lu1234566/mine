@@ -2,32 +2,32 @@
   "resource_pack_name": "arise",
   "texture_name": "atlas.items",
   "texture_data": {
-    "arise_system_core": {
-      "textures": "textures/items/system_core"
+    "arise:nucleo_do_sistema": {
+      "textures": "textures/items/nucleo_do_sistema"
     },
-    "arise_gate_key_e": {
-      "textures": "textures/items/gate_key_e"
+    "arise:grimorio_habilidades": {
+      "textures": "textures/items/grimorio_habilidades"
     },
-    "arise_gate_key_d": {
-      "textures": "textures/items/gate_key_d"
+    "arise:cristal_essencia": {
+      "textures": "textures/items/cristal_essencia"
     },
-    "arise_gate_key_c": {
-      "textures": "textures/items/gate_key_c"
+    "arise:chave_portal_e": {
+      "textures": "textures/items/chave_portal_e"
     },
-    "arise_essence_crystal": {
-      "textures": "textures/items/essence_crystal"
+    "arise:chave_portal_d": {
+      "textures": "textures/items/chave_portal_d"
     },
-    "arise_gate_key_b": {
-      "textures": "textures/items/gate_key_b"
+    "arise:chave_portal_c": {
+      "textures": "textures/items/chave_portal_c"
     },
-    "arise_gate_key_a": {
-      "textures": "textures/items/gate_key_a"
+    "arise:chave_portal_b": {
+      "textures": "textures/items/chave_portal_b"
     },
-    "arise_gate_key_s": {
-      "textures": "textures/items/gate_key_s"
+    "arise:chave_portal_a": {
+      "textures": "textures/items/chave_portal_a"
     },
-    "arise_skill_grimoire": {
-      "textures": "textures/items/skill_grimoire"
+    "arise:chave_portal_s": {
+      "textures": "textures/items/chave_portal_s"
     }
   }
 }

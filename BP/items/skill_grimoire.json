@@ -9,7 +9,7 @@
     },
     "components": {
       "minecraft:max_stack_size": 1,
-      "minecraft:icon": "arise_skill_grimoire",
+      "minecraft:icon": "arise:grimorio_habilidades",
       "minecraft:display_name": {
         "value": "item.arise.skill_grimoire"
       },

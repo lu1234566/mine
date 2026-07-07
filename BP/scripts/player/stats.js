@@ -280,7 +280,7 @@ export function initStats() {
   registerMenuSection({
     id: "attrs",
     label: "§dDistribuir Pontos",
-    icon: "textures/items/system_core",
+    icon: "textures/items/nucleo_do_sistema",
     visible: () => true,
     open: openDistribute,
   });

@@ -152,7 +152,7 @@ export function initClasses() {
   registerMenuSection({
     id: "evolution",
     label: "§5Evolução",
-    icon: "textures/items/system_core",
+    icon: "textures/items/nucleo_do_sistema",
     visible: () => true,
     open: openEvolutionMenu,
   });

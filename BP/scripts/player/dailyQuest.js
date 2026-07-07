@@ -359,7 +359,7 @@ export function initDailyQuest() {
   registerMenuSection({
     id: "daily",
     label: "§bMissão Diária",
-    icon: "textures/items/gate_key_e",
+    icon: "textures/items/chave_portal_e",
     visible: () => true,
     open: async (player) => {
       const type = dp(player, "dq_type");

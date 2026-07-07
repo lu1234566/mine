@@ -61,7 +61,7 @@ export function initSkills() {
   registerMenuSection({
     id: "skills",
     label: "§dHabilidades",
-    icon: "textures/items/system_core",
+    icon: "textures/items/nucleo_do_sistema",
     visible: () => true,
     open: openSkillsMenu,
   });
