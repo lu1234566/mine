@@ -7,6 +7,7 @@
 import { world, system } from "@minecraft/server";
 import { CONFIG } from "./config.js";
 import { initStats, tickHud, tickEffects, ensureSystemCore } from "./player/stats.js";
+import { initDailyQuest, tickDaily } from "./player/dailyQuest.js";
 import { initMenus } from "./ui/menus.js";
 
 const NS = CONFIG.NAMESPACE;
@@ -15,10 +16,11 @@ const DP_AWAKENED = `${NS}:awakened`;
 // ------------------------------------------------------------
 // Log de inicialização — visível no Log de Conteúdo (Content Log)
 // ------------------------------------------------------------
-console.log("[ARISE] Script carregado. Fase 2 (stats) ativa.");
+console.log("[ARISE] Script carregado. Fase 3 (missão diária) ativa.");
 
 initMenus();
 initStats();
+initDailyQuest();
 
 // ------------------------------------------------------------
 // Entrada do jogador: despertar (1ª vez) + entrega do Núcleo
@@ -75,9 +77,12 @@ system.runInterval(() => {
     const players = world.getAllPlayers();
     for (const p of players) {
       try {
-        tickHud(p);
+        // tickDaily cuida da missão diária e da penalidade; retorna
+        // true quando o jogador está na Zona (HUD própria da zona)
+        const emPenalidade = tickDaily(p, ciclo);
+        if (!emPenalidade) tickHud(p);
       } catch (e) {
-        console.error("[ARISE] Erro em tickHud: " + e);
+        console.error("[ARISE] Erro em tick de jogador: " + e);
       }
     }
     if (ciclo % CONFIG.INTERVALS.EFFECTS_EVERY === 0) {

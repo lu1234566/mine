@@ -4,6 +4,9 @@
   "texture_data": {
     "arise_system_core": {
       "textures": "textures/items/system_core"
+    },
+    "arise_gate_key_e": {
+      "textures": "textures/items/gate_key_e"
     }
   }
 }

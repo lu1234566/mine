@@ -4,9 +4,9 @@ Sistema de progressão RPG inspirado em mangás de "sistema de níveis" e evolu�
 
 **Alvo:** Minecraft Bedrock — desenvolvido/testado no Android (Chromebook), instalado no Nintendo Switch (desbloqueado) via injeção de save com JKSV.
 
-**Estado atual: Fase 2 (stats).** Além do despertar da Fase 1: XP por abate, níveis com curva exponencial, atributos (Força/Vitalidade/Agilidade/Percepção/Mana), HUD no actionbar, mana com regeneração e menu de distribuição de pontos via item "Núcleo do Sistema". Checklists de teste por fase: `docs/CHECKLISTS.md`.
+**Estado atual: Fase 3.** Fases 1–2 (despertar, XP/nível/atributos, HUD, mana, menu) + missão diária com ciclo de dia real, recompensas (XP + Chave de Portal Rank E) e Zona de Penalidade para quem ignora o Sistema. Checklists de teste por fase: `docs/CHECKLISTS.md`.
 
-**Toggles experimentais necessários: NENHUM.** A Fase 1 usa apenas módulos estáveis (`@minecraft/server` 1.13.0 e `@minecraft/server-ui` 1.1.0). Se alguma fase futura exigir um experimento, isso será destacado aqui e no checklist da fase.
+**Toggles experimentais necessários: NENHUM.** Todas as fases usam apenas módulos estáveis (`@minecraft/server` 1.13.0 e `@minecraft/server-ui` 1.1.0). Se alguma fase futura exigir um experimento, isso será destacado aqui e no checklist da fase.
 
 ---
 
@@ -27,7 +27,7 @@ Regras do projeto: API estável (`@minecraft/server` 1.x), JS puro sem bundler, 
 
 1. ✅ Esqueleto: manifests, despertar, CI, empacotamento
 2. ✅ Stats: XP, nível, atributos, HUD (actionbar), mana, menu de pontos
-3. Missão diária + zona de penalidade
+3. ✅ Missão diária + zona de penalidade
 4. Devorar: fragmentos de essência, traços, primeira evolução
 5. Exército de sombras: extração, entidades custom, comandos, reserva
 6. Portais rank E–C com arena
@@ -74,15 +74,9 @@ O console não importa `.mcpack`/`.mcaddon` — o caminho é colocar os packs de
 
 > Dica: teste sempre no Android **com a mesma versão do jogo** que está no Switch antes de injetar. Se as versões divergirem muito, a Script API pode se comportar diferente.
 
-## Checklist de teste — Fase 1 (Android)
+## Checklists de teste
 
-1. Importar `ARISE.mcaddon` → os dois packs aparecem em "Meus Packs" com ícone (seta ciano = BP, roxa = RP) e nome em PT-BR.
-2. Criar mundo novo, ativar o BP → o RP é puxado automaticamente como dependência; **nenhum aviso de experimento** deve aparecer.
-3. Ativar o Log de Conteúdo (Criador → GUI e arquivo) antes de entrar.
-4. Entrar no mundo → no log de conteúdo deve constar `[ARISE] Script carregado com sucesso. Fase 1 ativa.`
-5. ~2 s após o spawn: título **[ SISTEMA ]** com subtítulo "Você foi despertado.", som de beacon e mensagem de boas-vindas no chat.
-6. Sair e entrar de novo no mesmo mundo → agora só a mensagem curta "Sistema online. Fase 1 (esqueleto)." (prova que a dynamic property persistiu).
-7. (Opcional) Importar `ARISE_world.mcworld` → deve criar o mundo "ARISE — Mundo" já com os packs ativos, repetindo os passos 4–5.
+Os passos de teste manual de cada fase (Android) estão em **`docs/CHECKLISTS.md`** — rode o da fase mais recente antes de atualizar o mundo de verdade.
 
 ## Licença / conteúdo
 

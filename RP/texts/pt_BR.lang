@@ -5,3 +5,5 @@ pack.description=Texturas, entidades e textos do add-on ARISE.
 ## Itens
 item.arise.system_core=Núcleo do Sistema
 item.arise:system_core.name=Núcleo do Sistema
+item.arise.gate_key_e=Chave de Portal — Rank E
+item.arise:gate_key_e.name=Chave de Portal — Rank E

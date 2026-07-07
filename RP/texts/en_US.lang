@@ -5,3 +5,5 @@ pack.description=Textures, entities and texts for the ARISE add-on.
 ## Items
 item.arise.system_core=System Core
 item.arise:system_core.name=System Core
+item.arise.gate_key_e=Gate Key — Rank E
+item.arise:gate_key_e.name=Gate Key — Rank E

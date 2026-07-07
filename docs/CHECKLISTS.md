@@ -27,3 +27,15 @@ Nenhuma fase exige toggle experimental — se o jogo pedir, é bug: reporte.
 8. Barra de mana: gastar nada ainda (skills vêm na Fase 4), mas o `✦` regenera sozinho ~2/s se estiver abaixo do máximo; pontos em Mana aumentam o máximo (+5 cada).
 9. Sair e voltar → nível, XP, atributos e pontos continuam (persistência).
 10. Log de conteúdo sem erros `[ARISE]` em vermelho durante tudo isso.
+
+## Fase 3 — Missão diária + penalidade
+
+1. Ao entrar no mundo pela primeira vez no dia: título **[ MISSÃO DIÁRIA ]** com a missão sorteada (Caçada, Escavação ou Percurso) e aviso no chat.
+2. Menu do Núcleo → **Missão Diária** → mostra tipo, progresso `X/Y` e o prazo em horas até a virada do dia (UTC).
+3. Cumprir a meta (matar/quebrar/andar) → título **[ MISSÃO CONCLUÍDA ]**, +XP (~35% do nível) e, com sorte (~40%), uma **Chave de Portal — Rank E** no inventário (chave verde; ela só abre portal na Fase 6).
+4. Testar a penalidade sem esperar um dia real: mude a data do Android para o dia seguinte e entre no mundo com a missão incompleta (ou aguarde a virada UTC). Em até 60 s: título vermelho **[ ZONA DE PENALIDADE ]** + som de wither e teleporte para o alto de uma arena de obsidiana remota (você desce de queda lenta enquanto ela é construída).
+5. Dentro da zona: actionbar muda para `☠ ZONA DE PENALIDADE | Sobreviva mais XmYs`; zumbis/esqueletos/aranhas surgem a cada ~15 s (máx. 6 vivos); tentar escalar/fugir te devolve ao centro (teto invisível).
+6. Sobreviver 4 minutos → mensagem verde de dívida paga + teleporte de volta para onde você estava; os mobs da zona somem.
+7. Alternativa: morrer na zona → respawn normal + mensagem "dívida paga" (sem loop de punição).
+8. Depois da penalidade, a missão do novo dia é anunciada normalmente.
+9. Log de conteúdo sem erros `[ARISE]`.

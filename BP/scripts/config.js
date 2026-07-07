@@ -11,6 +11,9 @@ export const CONFIG = {
   // Identificadores de itens custom
   ITEMS: {
     SYSTEM_CORE: "arise:system_core",
+    GATE_KEYS: {
+      E: "arise:gate_key_e",
+    },
   },
 
   // Intervalos (em ticks). Console é o alvo: nunca reduzir MAIN para 1.
@@ -105,6 +108,31 @@ export const CONFIG = {
     BASE: 20,
     PER_POINT: 5,       // mana máx. extra por ponto em Mana
     REGEN_PER_LOOP: 1,  // regen a cada ciclo do MAIN (10 ticks) => 2/s
+  },
+
+  // --- Missão diária ---
+  DAILY: {
+    // metas: base + nivel * fator
+    KILL_BASE: 8, KILL_PER_LEVEL: 0.8,
+    MINE_BASE: 20, MINE_PER_LEVEL: 2,
+    RUN_BASE: 300, RUN_PER_LEVEL: 20,
+    REWARD_XP_PCT: 0.35, // % do XP do nível atual como recompensa
+    KEY_CHANCE: 0.4,     // chance de ganhar Chave de Portal (Rank E)
+    RUN_SAMPLE_EVERY: 2,   // ciclos do MAIN entre amostras de distância (20 ticks)
+    DAY_CHECK_EVERY: 120,  // ciclos do MAIN entre checagens de virada de dia (60 s)
+  },
+
+  // --- Zona de Penalidade ---
+  PENALTY: {
+    X: 100000, Y: 120, Z: 100000, // centro da arena (overworld remoto)
+    RADIUS: 10,                   // metade do lado da arena
+    WALL_HEIGHT: 5,
+    DURATION_MS: 4 * 60 * 1000,   // 4 minutos de sobrevivência
+    SPAWN_EVERY_MS: 15000,
+    SPAWN_COUNT: 2,
+    MAX_MOBS: 6,
+    MOBS: ["minecraft:zombie", "minecraft:skeleton", "minecraft:spider"],
+    TAG: "arise_pz",
   },
 
   // Mensagens do Sistema

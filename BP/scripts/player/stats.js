@@ -155,6 +155,21 @@ export function tickEffects(p) {
   }
 }
 
+// ---------- Entrega de itens (inventário cheio -> dropa aos pés) ----------
+export function giveItem(player, typeId, amount) {
+  try {
+    const inv = player.getComponent("minecraft:inventory")?.container;
+    const item = new ItemStack(typeId, amount);
+    if (!inv || inv.emptySlotsCount === 0) {
+      player.dimension.spawnItem(item, player.location);
+    } else {
+      inv.addItem(item);
+    }
+  } catch (e) {
+    console.error("[ARISE] Erro em giveItem: " + e);
+  }
+}
+
 // ---------- Item "Núcleo do Sistema" ----------
 export function ensureSystemCore(player) {
   const inv = player.getComponent("minecraft:inventory")?.container;

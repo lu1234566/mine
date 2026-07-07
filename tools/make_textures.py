@@ -70,10 +70,43 @@ SYSTEM_CORE_PALETTE = {
 }
 
 
+# ---------- Chave de Portal 16x16 (recolorida por rank) ----------
+GATE_KEY_ART = [
+    "................",
+    "....ddd.........",
+    "...dcccd........",
+    "..dc...cd.......",
+    "..dc...cd.......",
+    "..dc...cd.......",
+    "...dcccd........",
+    "....dcd.........",
+    "....dcd.........",
+    "....dcd.........",
+    "....dcdcd.......",
+    "....dcd.cd......",
+    "....dcdcd.......",
+    "....dcd.cd......",
+    ".....d..d.......",
+    "................",
+]
+
+# cores (borda, corpo) por rank
+GATE_KEY_RANKS = {
+    "e": ((30, 66, 30, 255), (94, 190, 94, 255)),      # verde
+}
+
+
+def gate_key_palette(rank):
+    d, c = GATE_KEY_RANKS[rank]
+    return {".": T, "d": d, "c": c}
+
+
 def main():
     root = sys.argv[1] if len(sys.argv) > 1 else "."
     items = f"{root}/RP/textures/items"
     write_png(f"{items}/system_core.png", SYSTEM_CORE_ART, SYSTEM_CORE_PALETTE)
+    for rank in GATE_KEY_RANKS:
+        write_png(f"{items}/gate_key_{rank}.png", GATE_KEY_ART, gate_key_palette(rank))
 
 
 if __name__ == "__main__":
