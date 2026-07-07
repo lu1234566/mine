@@ -39,3 +39,16 @@ Nenhuma fase exige toggle experimental — se o jogo pedir, é bug: reporte.
 7. Alternativa: morrer na zona → respawn normal + mensagem "dívida paga" (sem loop de punição).
 8. Depois da penalidade, a missão do novo dia é anunciada normalmente.
 9. Log de conteúdo sem erros `[ARISE]`.
+
+## Fase 4 — Devorar, traços e evolução
+
+1. Menu do Núcleo → **Habilidades** → "Devorar" aparece bloqueada antes do nível 3 e liberada a partir dele.
+2. Tocar em "Devorar" → alterna `[ATIVA]`/`[inativa]` com som e mensagem.
+3. Com Devorar ATIVA e mana ≥ 5: matar mobs → em ~45% dos abates, som + actionbar `✦ Essência absorvida: <mob> (n)` e 5 de mana a menos. Com Devorar inativa ou sem mana, nada acontece.
+4. O corpo do menu Habilidades lista as essências acumuladas e o progresso de cada traço (`✖ Pele Ígnea (3/8)` etc.).
+5. Juntar 8 essências de Blaze/Cubo de Magma → título **[ TRAÇO ADQUIRIDO ] Pele Ígnea**; a partir daí você não queima em fogo/lava (efeito reaplicado a cada ~5 s — pode piscar 1 tick de dano, mas não mata).
+6. Traços de teste rápido (creative/spawn eggs valem): 10 aranhas → veneno some sozinho; 12 creepers → explosão dói metade; 12 esqueletos → flechas suas dão +3 de dano; 12 zumbis → abaixo de 35% de vida você regenera.
+7. Menu → **Evolução**: mostra espécie atual (Despertado) e as duas opções bloqueadas até nível 10 + 20 essências totais.
+8. Cumprindo os requisitos, escolher **Predador** ou **Sábio** → confirmação explícita ("permanente"), título **[ EVOLUÇÃO ]**, som, e o nametag muda para `‹Predador› SeuNome` (visível para outro jogador/celular; em single player dá para conferir na câmera frontal do F5).
+9. Bônus: Sábio → mana máxima 1,5x no HUD; Predador → chance de Devorar sobe para ~60% no texto do menu Habilidades.
+10. Relogar → espécie, essências, traços e toggle do Devorar persistem; sem erros `[ARISE]` no log.

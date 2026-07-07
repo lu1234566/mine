@@ -135,6 +135,76 @@ export const CONFIG = {
     TAG: "arise_pz",
   },
 
+  // --- Devorar (predação) ---
+  DEVOUR: {
+    UNLOCK_LEVEL: 3,   // nível para desbloquear a skill
+    CHANCE: 0.45,      // chance base de absorver essência no abate
+    MANA_COST: 5,      // custo por absorção
+  },
+
+  // Nomes de exibição (PT-BR) das essências por mob
+  MOB_NAMES: {
+    zombie: "Zumbi", husk: "Zumbi-Múmia", drowned: "Afogado",
+    zombie_villager: "Aldeão Zumbi", skeleton: "Esqueleto", stray: "Esqueleto Gélido",
+    bogged: "Esqueleto do Brejo", creeper: "Creeper", spider: "Aranha",
+    cave_spider: "Aranha das Cavernas", blaze: "Blaze", magma_cube: "Cubo de Magma",
+    enderman: "Enderman", witch: "Bruxa", slime: "Slime", phantom: "Phantom",
+    pillager: "Saqueador", vindicator: "Vingador", evocation_illager: "Invocador",
+    ghast: "Ghast", wither_skeleton: "Esqueleto Wither", guardian: "Guardião",
+  },
+
+  // --- Traços (desbloqueados por fragmentos de essência) ---
+  // sources: chaves de essência que contam para o traço
+  TRAITS: [
+    {
+      id: "pele_ignea", nome: "Pele Ígnea",
+      desc: "Imunidade ao fogo e à lava",
+      sources: ["blaze", "magma_cube"], need: 8,
+    },
+    {
+      id: "sangue_frio", nome: "Sangue Frio",
+      desc: "Imunidade a veneno",
+      sources: ["spider", "cave_spider"], need: 10,
+    },
+    {
+      id: "pele_estavel", nome: "Pele Estável",
+      desc: "Reduz pela metade o dano de explosões",
+      sources: ["creeper"], need: 12,
+    },
+    {
+      id: "olho_certeiro", nome: "Olho Certeiro",
+      desc: "Flechas causam dano extra",
+      sources: ["skeleton", "stray", "bogged"], need: 12,
+    },
+    {
+      id: "vigor_sombrio", nome: "Vigor Sombrio",
+      desc: "Regenera quando estiver quase morrendo",
+      sources: ["zombie", "husk", "drowned", "zombie_villager"], need: 12,
+    },
+  ],
+  TRAIT_EXPLOSION_HEAL_PCT: 0.5, // Pele Estável: % do dano devolvido como cura
+  TRAIT_PROJECTILE_BONUS: 3,     // Olho Certeiro: dano extra por flecha
+  TRAIT_REGEN_HP_PCT: 0.35,      // Vigor Sombrio: ativa abaixo de 35% da vida
+
+  // --- Evolução de espécie ---
+  SPECIES: {
+    despertado: { nome: "Despertado", cor: "§7" },
+    predador:   { nome: "Predador",   cor: "§5" },
+    sabio:      { nome: "Sábio",      cor: "§b" },
+  },
+  // Bônus por espécie (aplicados via hooks no stats.js)
+  SPECIES_BONUS: {
+    predador: { devourChance: 0.15, strengthAmp: 1, xpMult: 1.0, manaMult: 1.0, manaRegenMult: 1.0 },
+    sabio:    { devourChance: 0.0,  strengthAmp: 0, xpMult: 1.1, manaMult: 1.5, manaRegenMult: 1.5 },
+  },
+  // Requisitos: nível mínimo + total de fragmentos de essência
+  EVOLUTIONS: [
+    { from: "despertado", to: "predador", level: 10, essences: 20,
+      desc: "+15% chance de Devorar, +1 de Força efetiva" },
+    { from: "despertado", to: "sabio", level: 10, essences: 20,
+      desc: "+50% de mana máxima e regeneração, +10% de XP" },
+  ],
+
   // Mensagens do Sistema
   MESSAGES: {
     AWAKENING_TITLE: "§b[ SISTEMA ]",

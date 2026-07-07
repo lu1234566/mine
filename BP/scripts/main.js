@@ -8,6 +8,9 @@ import { world, system } from "@minecraft/server";
 import { CONFIG } from "./config.js";
 import { initStats, tickHud, tickEffects, ensureSystemCore } from "./player/stats.js";
 import { initDailyQuest, tickDaily } from "./player/dailyQuest.js";
+import { initClasses } from "./player/classes.js";
+import { initSkills } from "./skills/skillRegistry.js";
+import { initDevour, tickTraits } from "./skills/devour.js";
 import { initMenus } from "./ui/menus.js";
 
 const NS = CONFIG.NAMESPACE;
@@ -16,11 +19,15 @@ const DP_AWAKENED = `${NS}:awakened`;
 // ------------------------------------------------------------
 // Log de inicialização — visível no Log de Conteúdo (Content Log)
 // ------------------------------------------------------------
-console.log("[ARISE] Script carregado. Fase 3 (missão diária) ativa.");
+console.log("[ARISE] Script carregado. Fase 4 (devorar/evolução) ativa.");
 
+// A ordem define a ordem das seções no menu principal
 initMenus();
 initStats();
 initDailyQuest();
+initSkills();
+initDevour();
+initClasses();
 
 // ------------------------------------------------------------
 // Entrada do jogador: despertar (1ª vez) + entrega do Núcleo
@@ -89,6 +96,7 @@ system.runInterval(() => {
       for (const p of players) {
         try {
           tickEffects(p);
+          tickTraits(p);
         } catch (e) {
           console.error("[ARISE] Erro em tickEffects: " + e);
         }
