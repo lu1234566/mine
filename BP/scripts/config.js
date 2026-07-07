@@ -16,6 +16,9 @@ export const CONFIG = {
       E: "arise:gate_key_e",
       D: "arise:gate_key_d",
       C: "arise:gate_key_c",
+      B: "arise:gate_key_b",
+      A: "arise:gate_key_a",
+      S: "arise:gate_key_s",
     },
   },
 
@@ -31,8 +34,8 @@ export const CONFIG = {
   // --- Curva de XP ---
   // xpParaProximoNivel = BASE * (nivel ^ EXPONENT)
   XP: {
-    BASE: 50,
-    EXPONENT: 1.6,
+    BASE: 40,       // (Fase 7) curva suavizada após testes de ritmo
+    EXPONENT: 1.5,
     MAX_LEVEL: 100,
     DEFAULT: 6, // XP para mobs fora da tabela
     // XP por tipo de mob (0 = sem XP, para bloquear farm abusivo)
@@ -123,7 +126,13 @@ export const CONFIG = {
     MINE_BASE: 20, MINE_PER_LEVEL: 2,
     RUN_BASE: 300, RUN_PER_LEVEL: 20,
     REWARD_XP_PCT: 0.35, // % do XP do nível atual como recompensa
-    KEY_CHANCE: 0.4,     // chance de ganhar Chave de Portal (Rank E)
+    KEY_CHANCE: 0.4,     // chance de ganhar Chave de Portal
+    // rank da chave da recompensa escala com o nível (1º que casar)
+    KEY_TIERS: [
+      { minLevel: 30, key: "arise:gate_key_c" },
+      { minLevel: 15, key: "arise:gate_key_d" },
+      { minLevel: 0, key: "arise:gate_key_e" },
+    ],
     RUN_SAMPLE_EVERY: 2,   // ciclos do MAIN entre amostras de distância (20 ticks)
     DAY_CHECK_EVERY: 120,  // ciclos do MAIN entre checagens de virada de dia (60 s)
   },
@@ -197,11 +206,15 @@ export const CONFIG = {
     despertado: { nome: "Despertado", cor: "§7" },
     predador:   { nome: "Predador",   cor: "§5" },
     sabio:      { nome: "Sábio",      cor: "§b" },
+    monarca:    { nome: "Monarca",    cor: "§4" },
+    oraculo:    { nome: "Oráculo",    cor: "§d" },
   },
-  // Bônus por espécie (aplicados via hooks no stats.js)
+  // Bônus por espécie (aplicados via hooks no stats.js/shadowArmy.js)
   SPECIES_BONUS: {
-    predador: { devourChance: 0.15, strengthAmp: 1, xpMult: 1.0, manaMult: 1.0, manaRegenMult: 1.0 },
-    sabio:    { devourChance: 0.0,  strengthAmp: 0, xpMult: 1.1, manaMult: 1.5, manaRegenMult: 1.5 },
+    predador: { devourChance: 0.15, strengthAmp: 1, xpMult: 1.0,  manaMult: 1.0, manaRegenMult: 1.0, shadowCap: 0 },
+    sabio:    { devourChance: 0.0,  strengthAmp: 0, xpMult: 1.1,  manaMult: 1.5, manaRegenMult: 1.5, shadowCap: 0 },
+    monarca:  { devourChance: 0.25, strengthAmp: 2, xpMult: 1.1,  manaMult: 1.2, manaRegenMult: 1.2, shadowCap: 3 },
+    oraculo:  { devourChance: 0.05, strengthAmp: 0, xpMult: 1.25, manaMult: 2.0, manaRegenMult: 2.0, shadowCap: 1 },
   },
   // Requisitos: nível mínimo + total de fragmentos de essência
   EVOLUTIONS: [
@@ -209,6 +222,10 @@ export const CONFIG = {
       desc: "+15% chance de Devorar, +1 de Força efetiva" },
     { from: "despertado", to: "sabio", level: 10, essences: 20,
       desc: "+50% de mana máxima e regeneração, +10% de XP" },
+    { from: "predador", to: "monarca", level: 25, essences: 60,
+      desc: "+25% Devorar, +2 Força efetiva, +3 sombras ativas" },
+    { from: "sabio", to: "oraculo", level: 25, essences: 60,
+      desc: "Mana dobrada, +25% de XP, +1 sombra ativa" },
   ],
 
   // --- Exército de Sombras ---
@@ -249,6 +266,9 @@ export const CONFIG = {
       "arise:gate_key_e": "E",
       "arise:gate_key_d": "D",
       "arise:gate_key_c": "C",
+      "arise:gate_key_b": "B",
+      "arise:gate_key_a": "A",
+      "arise:gate_key_s": "S",
     },
     STRUCTURE: "arise:gate_arena",
     // origem da estrutura 33x12x33 (overworld remoto, longe da penalidade)
@@ -284,9 +304,41 @@ export const CONFIG = {
           ["minecraft:vindicator", "minecraft:pillager", "minecraft:pillager", "minecraft:zombie", "minecraft:zombie"],
         ],
         bossEvent: "arise:rank_c", bossName: "§eGuardião do Portal §8[C]",
-        xp: 520, crystals: 3, upgradeChance: 0.0, upgradeKey: null,
+        xp: 520, crystals: 3, upgradeChance: 0.25, upgradeKey: "arise:gate_key_b",
+        mobEffects: [{ type: "resistance", amplifier: 0 }],
+      },
+      B: {
+        waves: [
+          ["minecraft:zombie", "minecraft:zombie", "minecraft:skeleton", "minecraft:skeleton", "minecraft:vindicator"],
+          ["minecraft:wither_skeleton", "minecraft:wither_skeleton", "minecraft:skeleton", "minecraft:creeper", "minecraft:creeper"],
+          ["minecraft:vindicator", "minecraft:vindicator", "minecraft:pillager", "minecraft:pillager", "minecraft:witch"],
+        ],
+        bossEvent: "arise:rank_b", bossName: "§6Guardião do Portal §8[B]",
+        xp: 900, crystals: 4, upgradeChance: 0.25, upgradeKey: "arise:gate_key_a",
+        mobEffects: [{ type: "resistance", amplifier: 0 }, { type: "strength", amplifier: 0 }],
+      },
+      A: {
+        waves: [
+          ["minecraft:wither_skeleton", "minecraft:wither_skeleton", "minecraft:wither_skeleton", "minecraft:vindicator", "minecraft:witch"],
+          ["minecraft:blaze", "minecraft:blaze", "minecraft:skeleton", "minecraft:skeleton", "minecraft:creeper"],
+          ["minecraft:evocation_illager", "minecraft:vindicator", "minecraft:vindicator", "minecraft:wither_skeleton", "minecraft:wither_skeleton"],
+        ],
+        bossEvent: "arise:rank_a", bossName: "§cGuardião do Portal §8[A]",
+        xp: 1500, crystals: 6, upgradeChance: 0.2, upgradeKey: "arise:gate_key_s",
+        mobEffects: [{ type: "resistance", amplifier: 0 }, { type: "strength", amplifier: 1 }, { type: "speed", amplifier: 0 }],
+      },
+      S: {
+        waves: [
+          ["minecraft:wither_skeleton", "minecraft:wither_skeleton", "minecraft:wither_skeleton", "minecraft:blaze", "minecraft:blaze", "minecraft:blaze"],
+          ["minecraft:evocation_illager", "minecraft:evocation_illager", "minecraft:vindicator", "minecraft:vindicator", "minecraft:witch"],
+          ["minecraft:ravager", "minecraft:vindicator", "minecraft:vindicator", "minecraft:wither_skeleton", "minecraft:wither_skeleton"],
+        ],
+        bossEvent: "arise:rank_s", bossName: "§4Guardião do Portal §8[S]",
+        xp: 2600, crystals: 10, upgradeChance: 0.0, upgradeKey: null,
+        mobEffects: [{ type: "resistance", amplifier: 1 }, { type: "strength", amplifier: 1 }, { type: "speed", amplifier: 0 }],
       },
     },
+    MOB_EFFECT_DURATION: 12000, // ticks (10 min, cobre a instância)
   },
 
   // Mensagens do Sistema

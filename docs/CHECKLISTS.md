@@ -78,3 +78,14 @@ Nenhuma fase exige toggle experimental — se o jogo pedir, é bug: reporte.
 7. Testar falhas: (a) morrer dentro → respawn normal + "instância colapsou", sem recompensa; (b) usar uma chave enquanto outro portal está aberto → mensagem de ocupado SEM consumir a chave; (c) ficar 10 min sem fechar → o portal colapsa e te devolve.
 8. Rank D (3 ondas, chefe 100 HP) e Rank C (3 ondas com vingadores/saqueadores, chefe 160 HP) funcionam igual, com recompensas maiores.
 9. Sem erros `[ARISE]` no log durante o ciclo completo.
+
+## Fase 7 — Ranks B–S, segunda evolução e polish
+
+1. Chaves **B (laranja), A (vermelha) e S (roxa)** existem e abrem portais com 3 ondas mais pesadas (esqueletos wither, blazes, invocadores, ravager no S). Os mobs dessas ondas vêm buffados (resistência/força — sem partículas visíveis, mas aguentam mais dano).
+2. Vencer o rank C agora tem 25% de chance de dropar chave B; A tem 20% de dar a S. Recompensas sobem até +2600 XP e 10 cristais no S.
+3. Chefes B/A/S: barra de chefe com vida 240/340/500 e dano crescente — no rank S, leve suas sombras e poções.
+4. **Segunda evolução** (menu Evolução, nível 25 + 60 essências): Predador → **Monarca** (+25% Devorar, +2 Força, +3 sombras ativas) e Sábio → **Oráculo** (mana dobrada, +25% XP, +1 sombra). O nametag muda de cor (`‹Monarca›` vermelho-escuro / `‹Oráculo›` rosa).
+5. Confirmar limite de sombras: nível 25 como Monarca = 1 + 5 + 3 = **9 ativas**.
+6. Missão diária: com nível 15+ a chave da recompensa vira Rank D; com 30+, Rank C.
+7. Polish: partícula de totem ao subir de nível; explosão visual quando o Guardião surge; curva de XP suavizada (subir de nível no early game ~20% mais rápido).
+8. Passada completa sem erros `[ARISE]` no log: entrar, missão, devorar, extrair sombra, portal E→S, evoluir 2x, relogar e conferir persistência de tudo.

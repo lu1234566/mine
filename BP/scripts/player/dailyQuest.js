@@ -99,8 +99,11 @@ function completeQuest(player) {
   addXp(player, xp);
   let extra = "";
   if (Math.random() < D.KEY_CHANCE) {
-    giveItem(player, CONFIG.ITEMS.GATE_KEYS.E, 1);
-    extra = " §fVocê recebeu uma §aChave de Portal (Rank E)§f!";
+    // rank da chave escala com o nível (primeira faixa que casar)
+    const nivel = typeof level === "number" ? level : 1;
+    const tier = D.KEY_TIERS.find((t) => nivel >= t.minLevel) ?? D.KEY_TIERS[D.KEY_TIERS.length - 1];
+    giveItem(player, tier.key, 1);
+    extra = " §fVocê recebeu uma §aChave de Portal§f!";
   }
   try {
     player.onScreenDisplay.setTitle("§a[ MISSÃO CONCLUÍDA ]", {

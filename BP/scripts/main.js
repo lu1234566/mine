@@ -21,7 +21,7 @@ const DP_AWAKENED = `${NS}:awakened`;
 // ------------------------------------------------------------
 // Log de inicialização — visível no Log de Conteúdo (Content Log)
 // ------------------------------------------------------------
-console.log("[ARISE] Script carregado. Fase 6 (portais) ativa.");
+console.log("[ARISE] Script carregado. Fase 7 (completo) ativa.");
 
 // A ordem define a ordem das seções no menu principal
 initMenus();

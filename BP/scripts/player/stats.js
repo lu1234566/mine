@@ -92,6 +92,11 @@ function onLevelUp(player, level, points) {
       fadeOutDuration: 10,
     });
     player.playSound("random.levelup");
+    try {
+      player.dimension.spawnParticle("minecraft:totem_particle", {
+        x: player.location.x, y: player.location.y + 1.5, z: player.location.z,
+      });
+    } catch { /* partícula é cosmética */ }
     player.sendMessage(
       CONFIG.MESSAGES.SYSTEM_PREFIX +
         `§fVocê alcançou o nível §b${level}§f. Abra o §dNúcleo do Sistema§f para distribuir pontos.`

@@ -117,7 +117,7 @@ function closeGate(voltarJogador, motivoMsg) {
 }
 
 // ---------- ondas ----------
-function spawnWave(player, mobs) {
+function spawnWave(player, mobs, mobEffects) {
   const c = arenaCenter();
   const dim = overworld();
   let i = 0;
@@ -129,6 +129,14 @@ function spawnWave(player, mobs) {
         x: c.x + Math.cos(ang) * dist, y: c.y, z: c.z + Math.sin(ang) * dist,
       });
       mob.addTag(G.TAG);
+      // ranks altos: mobs buffados por efeitos (escala sem novas entidades)
+      for (const fx of mobEffects ?? []) {
+        try {
+          mob.addEffect(fx.type, G.MOB_EFFECT_DURATION, {
+            amplifier: fx.amplifier, showParticles: false,
+          });
+        } catch { /* mob sem suporte ao efeito */ }
+      }
       i++;
     } catch (e) {
       console.error("[ARISE] Erro ao spawnar onda: " + e);
@@ -145,6 +153,9 @@ function spawnBoss(player, rankCfg) {
     boss.addTag(G.BOSS_TAG);
     boss.triggerEvent(rankCfg.bossEvent);
     boss.nameTag = rankCfg.bossName;
+    overworld().spawnParticle("minecraft:huge_explosion_emitter", {
+      x: c.x, y: c.y + 1, z: c.z,
+    });
     player.onScreenDisplay.setTitle("§4[ GUARDIÃO ]", {
       subtitle: rankCfg.bossName,
       fadeInDuration: 5, stayDuration: 50, fadeOutDuration: 15,
@@ -242,7 +253,7 @@ export function tickGates(ciclo) {
         player.onScreenDisplay.setTitle(`§5Onda ${gate.wave}§7/${cfg.waves.length}`, {
           fadeInDuration: 5, stayDuration: 30, fadeOutDuration: 10,
         });
-        spawnWave(player, cfg.waves[gate.wave - 1]);
+        spawnWave(player, cfg.waves[gate.wave - 1], cfg.mobEffects);
         gate.phase = "wave";
       } else {
         spawnBoss(player, cfg);

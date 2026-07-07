@@ -130,6 +130,10 @@ export function initClasses() {
     const b = bonus(p);
     return b ? v + b.devourChance : v;
   });
+  HOOKS.shadowCapBonus.push((p, v) => {
+    const b = bonus(p);
+    return b ? v + (b.shadowCap ?? 0) : v;
+  });
 
   // nametag ao entrar
   world.afterEvents.playerSpawn.subscribe((ev) => {

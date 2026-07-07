@@ -12,6 +12,12 @@ item.arise.gate_key_d=Gate Key — Rank D
 item.arise:gate_key_d.name=Gate Key — Rank D
 item.arise.gate_key_c=Gate Key — Rank C
 item.arise:gate_key_c.name=Gate Key — Rank C
+item.arise.gate_key_b=Gate Key — Rank B
+item.arise:gate_key_b.name=Gate Key — Rank B
+item.arise.gate_key_a=Gate Key — Rank A
+item.arise:gate_key_a.name=Gate Key — Rank A
+item.arise.gate_key_s=Gate Key — Rank S
+item.arise:gate_key_s.name=Gate Key — Rank S
 item.arise.essence_crystal=Essence Crystal
 item.arise:essence_crystal.name=Essence Crystal
 
