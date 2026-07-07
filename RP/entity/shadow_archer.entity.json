@@ -4,8 +4,8 @@
     "description": {
       "identifier": "arise:shadow_archer",
       "materials": { "default": "zombie" },
-      "textures": { "default": "textures/entity/arise/shadow_archer" },
-      "geometry": { "default": "geometry.zombie.v1.8" },
+      "textures": { "default": "textures/entity/sombra_arqueira" },
+      "geometry": { "default": "geometry.arise_shadow" },
       "scripts": {
         "pre_animation": [
           "variable.gliding_speed_value = 1.0;",

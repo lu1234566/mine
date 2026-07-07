@@ -4,8 +4,8 @@
     "description": {
       "identifier": "arise:shadow_warrior",
       "materials": { "default": "zombie" },
-      "textures": { "default": "textures/entity/arise/shadow_warrior" },
-      "geometry": { "default": "geometry.zombie.v1.8" },
+      "textures": { "default": "textures/entity/sombra_guerreira" },
+      "geometry": { "default": "geometry.arise_shadow" },
       "scripts": {
         "pre_animation": [
           "variable.gliding_speed_value = 1.0;",
