@@ -106,18 +106,20 @@ def gate_key_palette(rank):
     return {".": T, "d": d, "c": c}
 
 
-# ---------- Texturas de entidade: pele 64x64 escura c/ olhos ----------
+# ---------- Texturas de entidade: pele 64x32 escura c/ olhos ----------
+# IMPORTANTE: geometry.zombie.v1.8 (vanilla) declara textura 64x32.
+# Gerar 64x64 desloca o UV (olhos fora do rosto) — não mude o tamanho.
 def make_shadow_skin(path, eye, seed):
     import random
     rng = random.Random(seed)
     px = []
-    for y in range(64):
+    for y in range(32):
         row = []
         for x in range(64):
             v = 8 + rng.randint(0, 7)  # quase preto com ruído sutil
             row.append((v, v, v + 9, 255))
         px.append(row)
-    # Olhos na face frontal da cabeça (layout padrão: x 8..15, y 8..15)
+    # Olhos na face frontal da cabeça (layout humanoide: x 8..15, y 8..15)
     dim = (max(eye[0] // 3, 20), max(eye[1] // 3, 20), max(eye[2] // 3, 20), 255)
     for ex in (9, 13):
         for dx in range(2):
@@ -127,7 +129,7 @@ def make_shadow_skin(path, eye, seed):
         px[11][ex + 1] = eye
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "wb") as f:
-        f.write(png_bytes(64, 64, px))
+        f.write(png_bytes(64, 32, px))
     print(f"[textures] {path}")
 
 
