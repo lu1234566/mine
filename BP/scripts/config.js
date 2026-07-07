@@ -11,6 +11,7 @@ export const CONFIG = {
   // Identificadores de itens custom
   ITEMS: {
     SYSTEM_CORE: "arise:system_core",
+    SKILL_GRIMOIRE: "arise:skill_grimoire",
     ESSENCE_CRYSTAL: "arise:essence_crystal",
     GATE_KEYS: {
       E: "arise:gate_key_e",
@@ -339,6 +340,43 @@ export const CONFIG = {
       },
     },
     MOB_EFFECT_DURATION: 12000, // ticks (10 min, cobre a instância)
+  },
+
+  // --- Habilidades ativas (Fase 8A) ---
+  SKILLS: {
+    // Clarividência: marca o tipo analisado por 30s
+    ANALYZE_MARK_MS: 30000,
+    ANALYZE_XP_MULT: 1.25,      // +25% de XP contra o tipo marcado
+    ANALYZE_DEVOUR_BONUS: 0.15, // +15% de chance de Devorar contra ele
+    LIST: {
+      impulso: {
+        nome: "Impulso", unlock: 5, mana: 6, cooldownMs: 3000,
+        forca: 2.2, vertical: 0.25,
+        desc: "Avança na direção do olhar",
+      },
+      golpe_fantasma: {
+        nome: "Golpe Fantasma", unlock: 12, mana: 12, cooldownMs: 8000,
+        raio: 4, danoBase: 4, danoPorForca: 0.5,
+        desc: "Dano em área (4 blocos) escalando com Força",
+      },
+      ocultacao: {
+        nome: "Ocultação", unlock: 20, mana: 25, cooldownMs: 60000,
+        duracaoTicks: 300,
+        desc: "Invisibilidade por 15s",
+      },
+      dreno: {
+        nome: "Dreno Sombrio", unlock: 30, mana: 20, cooldownMs: 12000,
+        alcance: 16, danoBase: 6, danoPorForca: 0.6, curaPct: 0.6,
+        species: ["predador", "monarca"],
+        desc: "Drena a vida do alvo olhado (só Predador/Monarca)",
+      },
+      clarividencia: {
+        nome: "Clarividência", unlock: 8, mana: 8, cooldownMs: 5000,
+        alcance: 24, geralAposNivel: 30,
+        species: ["sabio", "oraculo"],
+        desc: "Analisa o alvo olhado e o marca por 30s",
+      },
+    },
   },
 
   // Mensagens do Sistema

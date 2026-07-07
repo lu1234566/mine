@@ -11,6 +11,7 @@ import { initDailyQuest, tickDaily } from "./player/dailyQuest.js";
 import { initClasses } from "./player/classes.js";
 import { initSkills } from "./skills/skillRegistry.js";
 import { initDevour, tickTraits } from "./skills/devour.js";
+import { initActiveSkills, ensureGrimoire } from "./skills/activeSkills.js";
 import { initShadows, tickShadows } from "./skills/shadowArmy.js";
 import { initGates, tickGates } from "./dungeons/gates.js";
 import { initMenus } from "./ui/menus.js";
@@ -21,7 +22,7 @@ const DP_AWAKENED = `${NS}:awakened`;
 // ------------------------------------------------------------
 // Log de inicialização — visível no Log de Conteúdo (Content Log)
 // ------------------------------------------------------------
-console.log("[ARISE] Script carregado. Fase 7 (completo) ativa.");
+console.log("[ARISE] Script carregado. Fase 8A (skills ativas) ativa.");
 
 // A ordem define a ordem das seções no menu principal
 initMenus();
@@ -29,6 +30,7 @@ initStats();
 initDailyQuest();
 initSkills();
 initDevour();
+initActiveSkills();
 initShadows();
 initClasses();
 initGates();
@@ -42,6 +44,7 @@ world.afterEvents.playerSpawn.subscribe((ev) => {
     const player = ev.player;
 
     ensureSystemCore(player);
+    ensureGrimoire(player);
 
     const jaDespertou = player.getDynamicProperty(DP_AWAKENED) === true;
     if (!jaDespertou) {

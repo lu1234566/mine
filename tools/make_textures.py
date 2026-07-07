@@ -106,6 +106,33 @@ def gate_key_palette(rank):
     return {".": T, "d": d, "c": c}
 
 
+# ---------- Grimório de Habilidades 16x16 ----------
+GRIMOIRE_ART = [
+    "................",
+    "..bbbbbbbbbbb...",
+    ".bccccccccccdb..",
+    ".bccccccccccdb..",
+    ".bcc.rrrr.ccdb..",
+    ".bcc.r....ccdb..",
+    ".bcc.rrr..ccdb..",
+    ".bcc.r....ccdb..",
+    ".bcc.r....ccdb..",
+    ".bcc......ccdb..",
+    ".bccccccccccdb..",
+    ".bccccccccccdb..",
+    ".bbbbbbbbbbbb...",
+    "..dddddddddd....",
+    "................",
+    "................",
+]
+GRIMOIRE_PALETTE = {
+    ".": T,
+    "b": (24, 16, 44, 255),     # capa externa
+    "c": (52, 36, 90, 255),     # capa
+    "d": (110, 96, 150, 255),   # páginas/lombada
+    "r": (216, 120, 255, 255),  # runa
+}
+
 # ---------- Texturas de entidade: pele 64x32 escura c/ olhos ----------
 # IMPORTANTE: geometry.zombie.v1.8 (vanilla) declara textura 64x32.
 # Gerar 64x64 desloca o UV (olhos fora do rosto) — não mude o tamanho.
@@ -139,6 +166,8 @@ def main():
     write_png(f"{items}/system_core.png", SYSTEM_CORE_ART, SYSTEM_CORE_PALETTE)
     for rank in GATE_KEY_RANKS:
         write_png(f"{items}/gate_key_{rank}.png", GATE_KEY_ART, gate_key_palette(rank))
+    # grimório de habilidades: livro escuro com runa
+    write_png(f"{items}/skill_grimoire.png", GRIMOIRE_ART, GRIMOIRE_PALETTE)
     # cristal de essência: mesma arte do núcleo, paleta roxa
     write_png(f"{items}/essence_crystal.png", SYSTEM_CORE_ART, {
         ".": T,

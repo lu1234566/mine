@@ -111,6 +111,10 @@ export function xpForMob(typeId) {
   return typeof v === "number" ? v : CONFIG.XP.DEFAULT;
 }
 
+// ---------- Sufixos do HUD (Fase 8A: skill armada etc.) ----------
+const hudSuffixProviders = [];
+export function registerHudSuffix(fn) { hudSuffixProviders.push(fn); }
+
 // ---------- Loops (chamados pelo main.js) ----------
 
 // A cada ciclo MAIN (10 ticks): regen de mana + HUD no actionbar
@@ -132,6 +136,12 @@ export function tickHud(p) {
     `§7Nv. §f${s.level} §8| §c❤ ${hp}§7/${mhp} §8| ` +
     `§b✦ ${Math.floor(mana)}§7/${mm} §8| §aXP ${pct}%`;
   if (s.points > 0) text += ` §8| §e+${s.points} pts`;
+  for (const fn of hudSuffixProviders) {
+    try {
+      const t = fn(p);
+      if (t) text += " " + t;
+    } catch { /* sufixo é cosmético */ }
+  }
   p.onScreenDisplay.setActionBar(text);
 }
 
@@ -239,7 +249,17 @@ export function initStats() {
       if (!killer || killer.typeId !== "minecraft:player") return;
       const dead = ev.deadEntity;
       if (!dead || dead.typeId === "minecraft:player") return;
-      const xp = xpForMob(dead.typeId);
+      let xp = xpForMob(dead.typeId);
+      // Clarividência (8A): tipo analisado rende mais XP por 30s
+      const rawA = killer.getDynamicProperty(`${NS}:analyzed`);
+      if (typeof rawA === "string") {
+        try {
+          const a = JSON.parse(rawA);
+          if (a.typeId === dead.typeId && Date.now() < a.until) {
+            xp *= CONFIG.SKILLS.ANALYZE_XP_MULT;
+          }
+        } catch { /* marca corrompida: ignora */ }
+      }
       if (xp > 0) addXp(killer, xp);
     } catch (e) {
       console.error("[ARISE] Erro em entityDie(XP): " + e);

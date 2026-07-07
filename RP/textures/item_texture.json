@@ -25,6 +25,9 @@
     },
     "arise_gate_key_s": {
       "textures": "textures/items/gate_key_s"
+    },
+    "arise_skill_grimoire": {
+      "textures": "textures/items/skill_grimoire"
     }
   }
 }

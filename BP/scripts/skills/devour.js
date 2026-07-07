@@ -73,7 +73,17 @@ function tryDevour(player, deadEntity) {
   if (level < DV.UNLOCK_LEVEL) return;
   if (dp(player, "devour_on") !== true) return;
 
-  const chance = applyHooks(HOOKS.devourChanceBonus, player, DV.CHANCE);
+  let chance = applyHooks(HOOKS.devourChanceBonus, player, DV.CHANCE);
+  // Clarividência (8A): tipo analisado é mais fácil de devorar
+  const rawA = dp(player, "analyzed");
+  if (typeof rawA === "string") {
+    try {
+      const a = JSON.parse(rawA);
+      if (a.typeId === deadEntity.typeId && Date.now() < a.until) {
+        chance += CONFIG.SKILLS.ANALYZE_DEVOUR_BONUS;
+      }
+    } catch { /* marca corrompida: ignora */ }
+  }
   if (Math.random() > chance) return;
   if (!spendMana(player, DV.MANA_COST)) return;
 
