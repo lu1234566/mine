@@ -18,6 +18,8 @@ import { CONFIG } from "../config.js";
 import { HOOKS, applyHooks } from "../player/hooks.js";
 import { spendMana, addXp, xpForMob } from "../player/stats.js";
 import { registerSkill } from "./skillRegistry.js";
+// import circular seguro: openFusion só é chamada em runtime (menu)
+import { openFusion } from "./fusion.js";
 
 const NS = CONFIG.NAMESPACE;
 const SH = CONFIG.SHADOWS;
@@ -26,12 +28,12 @@ const MSG = CONFIG.MESSAGES.SYSTEM_PREFIX;
 function dp(p, key) { return p.getDynamicProperty(`${NS}:${key}`); }
 function setDp(p, key, v) { p.setDynamicProperty(`${NS}:${key}`, v); }
 
-function getRecords(p) {
+export function getRecords(p) {
   const raw = dp(p, "shadows");
   if (typeof raw !== "string") return [];
   try { return JSON.parse(raw); } catch { return []; }
 }
-function saveRecords(p, recs) { setDp(p, "shadows", JSON.stringify(recs)); }
+export function saveRecords(p, recs) { setDp(p, "shadows", JSON.stringify(recs)); }
 
 function shadowCap(p) {
   const level = dp(p, "level") ?? 1;
@@ -41,8 +43,10 @@ function shadowCap(p) {
 
 function ownTag(p) { return `arise_own_${p.id}`; }
 
-function nameFor(rec) {
-  return `§5${SH.TYPES[rec.type].nome} §8[T${rec.tier}]`;
+export function nameFor(rec) {
+  const rotulo = rec.tier >= CONFIG.FUSION.ELITE_TIER ? "§6ELITE§8" : `T${rec.tier}`;
+  const base = rec.nome ? `§5${rec.nome} §7(${SH.TYPES[rec.type].nome})` : `§5${SH.TYPES[rec.type].nome}`;
+  return `${base} §8[${rotulo}]`;
 }
 
 // ---------- mortes recentes (janela de extração) ----------
@@ -82,6 +86,17 @@ function spawnShadow(player, rec, loc) {
   ent.addTag(`arise_sid_${rec.id}`);
   ent.nameTag = nameFor(rec);
   if (rec.tier >= 2) ent.triggerEvent(`arise:tier${Math.min(rec.tier, 3)}`);
+  // Elite (8C): efeitos extras "permanentes" + tag p/ partícula ambiente
+  if (rec.tier >= CONFIG.FUSION.ELITE_TIER) {
+    ent.addTag("arise_elite");
+    for (const fx of CONFIG.FUSION.ELITE_EFFECTS) {
+      try {
+        ent.addEffect(fx.type, CONFIG.FUSION.ELITE_EFFECT_DURATION, {
+          amplifier: fx.amplifier, showParticles: false,
+        });
+      } catch { /* efeito não suportado pela entidade */ }
+    }
+  }
   try {
     dim.spawnParticle("minecraft:large_explosion", {
       x: loc.x, y: loc.y + 1, z: loc.z,
@@ -165,8 +180,14 @@ async function openCommand(player) {
   const reserva = recs.filter((r) => !r.active);
   let body =
     `§7Ativas: §f${activeCount(recs)}§7/${cap} — reserva: §f${reserva.length}\n`;
+  const agoraCmd = Date.now();
   for (const r of recs) {
-    body += `§8- ${nameFor(r)} §7xp ${r.xp} ${r.active ? "§a(ativa)" : "§8(reserva)"}\n`;
+    const estado = r.active
+      ? "§a(ativa)"
+      : (r.woundedUntil && agoraCmd < r.woundedUntil
+        ? `§c(ferida ${Math.ceil((r.woundedUntil - agoraCmd) / 60000)}m)`
+        : "§8(reserva)");
+    body += `§8- ${nameFor(r)} §7xp ${r.xp} ${estado}\n`;
   }
   const form = new ActionFormData().title("§5Comandar Sombras").body(body)
     .button("§aSeguir-me")
@@ -247,14 +268,26 @@ async function openSummon(player) {
     return;
   }
   const cap = shadowCap(player);
+  const agora = Date.now();
   const form = new ActionFormData().title("§5Invocar da Reserva")
     .body(`§7Ativas: §f${activeCount(recs)}§7/${cap} — custo: §b${SH.SUMMON_COST} mana§7 cada.`);
-  for (const rec of reserva) form.button(`${nameFor(rec)}\n§7xp ${rec.xp}`);
+  for (const rec of reserva) {
+    const ferida = rec.woundedUntil && agora < rec.woundedUntil;
+    form.button(ferida
+      ? `§8${nameFor(rec)}\n§c✚ ferida — ${Math.ceil((rec.woundedUntil - agora) / 60000)} min`
+      : `${nameFor(rec)}\n§7xp ${rec.xp}`);
+  }
   form.button("§8Voltar");
   const r = await form.show(player);
   if (r.canceled || r.selection === undefined || r.selection >= reserva.length) return;
   const rec = reserva[r.selection];
 
+  if (rec.woundedUntil && Date.now() < rec.woundedUntil) {
+    player.sendMessage(
+      MSG + `§c${nameFor(rec)}§c ainda está ferida (${Math.ceil((rec.woundedUntil - Date.now()) / 60000)} min).`
+    );
+    return;
+  }
   if (activeCount(recs) >= cap) {
     player.sendMessage(MSG + `§cLimite de sombras ativas (${cap}).`);
     return;
@@ -322,6 +355,14 @@ export function tickShadows(player, ciclo) {
   try {
     const ents = findShadowEntities(player);
     for (const e of ents) {
+      // Elite (8C): partícula ambiente sutil (1 por checagem, barato)
+      if (e.hasTag("arise_elite")) {
+        try {
+          e.dimension.spawnParticle("minecraft:basic_smoke_particle", {
+            x: e.location.x, y: e.location.y + 2.1, z: e.location.z,
+          });
+        } catch { /* cosmético */ }
+      }
       if (e.hasTag("arise_wait")) continue;
       const d = Math.hypot(
         e.location.x - player.location.x,
@@ -357,8 +398,17 @@ export function initShadows() {
           const rec = recs.find((r) => r.id === sid);
           if (rec) {
             rec.active = false;
+            // sombra nomeada (fundida) volta FERIDA: reinvocação em cooldown
+            if (rec.nome) {
+              rec.woundedUntil = Date.now() + CONFIG.FUSION.WOUND_MS;
+              owner.sendMessage(
+                MSG + `§7${nameFor(rec)}§7 caiu, mas resistiu — ferida por ` +
+                `${Math.round(CONFIG.FUSION.WOUND_MS / 60000)} min na reserva.`
+              );
+            } else {
+              owner.sendMessage(MSG + `§7Sua ${SH.TYPES[rec.type].nome} caiu e retornou à reserva.`);
+            }
             saveRecords(owner, recs);
-            owner.sendMessage(MSG + `§7Sua ${SH.TYPES[rec.type].nome} caiu e retornou à reserva.`);
           }
         }
         return;
@@ -400,11 +450,13 @@ export function initShadows() {
       const form = new ActionFormData().title("§5Exército de Sombras")
         .button("§5Extrair Sombra\n§7de um abate recente")
         .button("§5Comandar\n§7seguir, aguardar, atacar, reserva")
+        .button("§5Fundir\n§73 iguais viram 1 do tier seguinte")
         .button("§8Voltar");
       const r = await form.show(p);
       if (r.canceled || r.selection === undefined) return;
       if (r.selection === 0) await openExtract(p);
       else if (r.selection === 1) await openCommand(p);
+      else if (r.selection === 2) await openFusion(p);
     },
   });
 }

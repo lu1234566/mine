@@ -89,3 +89,40 @@ Nenhuma fase exige toggle experimental — se o jogo pedir, é bug: reporte.
 6. Missão diária: com nível 15+ a chave da recompensa vira Rank D; com 30+, Rank C.
 7. Polish: partícula de totem ao subir de nível; explosão visual quando o Guardião surge; curva de XP suavizada (subir de nível no early game ~20% mais rápido).
 8. Passada completa sem erros `[ARISE]` no log: entrar, missão, devorar, extrair sombra, portal E→S, evoluir 2x, relogar e conferir persistência de tudo.
+
+## Fase 8A — Habilidades ativas (v0.8.1)
+
+1. Reimportar o pack → na tela de packs a versão deve mostrar **0.8.1** (se mostrar antiga, remova o pack e importe de novo — era esse o motivo do bump).
+2. Ao entrar, além do Núcleo você recebe o **Grimório de Habilidades** (livro roxo com runa). Morrer não o perde.
+3. **Agachar + usar o Grimório** → menu com as 5 skills; abaixo do nível 5, todas bloqueadas com o requisito visível.
+4. No nível 5+, tocar **Impulso** → "armada"; HUD ganha `⚔ Impulso` no fim da barra. **Usar o Grimório em pé** → você é arremessado na direção do olhar, gasta 6 de mana, e o HUD mostra `⚔ Impulso 3s` durante o cooldown. Spam de uso durante cooldown → só o aviso "recarrega em Xs" (sem gastar mana).
+5. **Teste de persistência do cooldown**: use Ocultação (nível 20, CD 60 s), saia do mundo IMEDIATAMENTE e volte → agachar+usar → o menu deve mostrar "recarrega ~40s", não "pronta". Se mostrar pronta, o bug é em `arise:cd_ocultacao` — procure `[ARISE] Erro em openSkillMenu` no log.
+6. **Golpe Fantasma** (nível 12): arme, junte 2+ monstros, dispare → partícula de explosão, som grave e actionbar `⚔ Golpe Fantasma: N alvos, X de dano`. Sombras suas e animais passivos NÃO tomam dano.
+7. **Ocultação**: invisibilidade 15 s sem partículas. **Limitação conhecida (API estável)**: mob que JÁ estava te atacando continua — a skill evita novos aggros, não limpa os antigos.
+8. **Clarividência** (nível 8; antes do 30 só Sábio/Oráculo — teste com o personagem certo): mire num mob e dispare → actionbar `👁 Nome — ❤ X/Y`; matar esse TIPO nos próximos 30 s dá +25% XP e +15% de chance de Devorar.
+9. **Dreno Sombrio** (nível 30, Predador/Monarca): mirar no nada → "Mire em uma criatura" e NÃO gasta mana/cooldown; mirar num mob → dano + coração de partícula + cura no actionbar.
+10. Sem erros `[ARISE]` no log em nenhum disparo.
+
+## Fase 8B — Rupturas + Portal Vermelho (v0.8.2)
+
+1. Versão **0.8.2** na tela de packs.
+2. **Forçar ruptura sem esperar 3 dias**: em `BP/scripts/config.js`, mude `BREAKS.DEBUG_FORCE_MS: 0` para `60000` (1 min), re-empacote/reimporte. Pegue uma Chave E (missão ou `/give`), espere ~2 min (a reconciliação roda a cada 60 s) SEM usar a chave.
+3. Ruptura dispara: título **[ RUPTURA ]** + som de wither, a chave SOME do inventário e a onda 1 do rank E surge ao seu redor; actionbar vira `⚠ RUPTURA [E] | Sobreviva XmYs | N inimigos`.
+4. Matar todos (ou aguentar 3 min) → `Ruptura contida`, +XP parcial (~36) e +1 cristal — de propósito bem menos que o portal renderia.
+5. Morrer no meio → respawn normal, mensagem "a fenda se fechou", sem recompensa, mobs somem.
+6. Conferir que ruptura NÃO dispara enquanto você está dentro de um portal ou na Zona de Penalidade (abra um portal com outra chave vencida no bolso — nada acontece até sair).
+7. **Volte `DEBUG_FORCE_MS` para 0** antes de jogar de verdade.
+8. **Portal Vermelho**: para testar rápido, mude `BREAKS.RED_CHANCE` para `1.0` (100%) e abra um portal → título vermelho **[ PORTAL VERMELHO ]** + rugido de dragão. Tentar sair andando da arena → teleporte de volta com aviso. Derrotar o Guardião → saída libera normal (recompensas normais). Morrer dentro → respawn fora, chave perdida, mensagem própria. Volte `RED_CHANCE` para 0.05 depois.
+9. Se nada disparar, procure `[ARISE] Erro em triggerBreak` ou `tickBreaks` no log.
+
+## Fase 8C — Fusão de sombras (v0.8.3)
+
+1. Versão **0.8.3** na tela de packs.
+2. Extraia 3 sombras do MESMO tipo (ex.: 3 guerreiras — todas tier 1) e **dispense todas** (fusão só olha a reserva).
+3. Menu → Habilidades → Exército de Sombras → **Fundir** → aparece `3x Sombra Guerreira [T1] → [T2] · custo: 1 cristal + 30 mana`. Sem cristal/mana suficientes, a execução recusa com mensagem clara.
+4. Confirmação lista EXATAMENTE o que será consumido; **Fundir** → título **[ FUSÃO COMPLETA ]** com um nome sorteado (ex.: `Umbra (Sombra Guerreira) [T2]`); as 3 somem da reserva e a nova aparece.
+5. Invocar a fundida → nametag mostra o nome próprio. As 3 de MENOR XP são as consumidas (a mais treinada sobrevive se houver 4+).
+6. **Cadeia até Elite**: 9x T1 → 3x T2 → 1x T3; repita até ter 3x T3 → fusão vira **[ELITE]** (custo 3 cristais). A Elite tem fumaça sutil saindo do topo, aguenta bem mais dano (resistência+vida extra) e bate mais forte.
+7. Elite NÃO aparece como opção de fusão (é o teto) e sombra nunca chega a Elite por XP (T3 é o máximo por combate).
+8. Deixe uma sombra NOMEADA morrer → mensagem "ferida por 10 min"; na reserva ela aparece `✚ ferida — Xm` e invocá-la é recusado até o tempo passar. Sombra sem nome continua voltando à reserva na hora.
+9. Relogar → nomes, tiers, feridas e reserva persistem. Sem erros `[ARISE]` (procure `openFusion` no log se o menu falhar).

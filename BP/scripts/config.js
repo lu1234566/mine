@@ -393,6 +393,29 @@ export const CONFIG = {
     TAG: "arise_break",
   },
 
+  // --- Fusão de sombras (Fase 8C) ---
+  FUSION: {
+    REQUIRED: 3,        // sombras iguais (tipo + tier) consumidas por fusão
+    MANA_COST: 30,
+    // cristais de essência exigidos pelo TIER RESULTANTE
+    CRYSTALS_BY_TIER: { 2: 1, 3: 2, 4: 3 },
+    ELITE_TIER: 4,      // só alcançável por fusão (XP para no tier 3)
+    WOUND_MS: 10 * 60 * 1000, // sombra nomeada morta fica "ferida" 10 min
+    // efeitos extras aplicados à Elite no spawn (além do grupo tier3)
+    ELITE_EFFECTS: [
+      { type: "resistance", amplifier: 1 },
+      { type: "strength", amplifier: 1 },
+      { type: "health_boost", amplifier: 4 },
+    ],
+    ELITE_EFFECT_DURATION: 20000000, // "permanente" enquanto viva
+    // nomes temáticos originais sorteados na fusão
+    NOMES: [
+      "Umbra", "Vésper", "Breu", "Penumbra", "Eclipse", "Fuligem",
+      "Ébano", "Nocturno", "Crepúsculo", "Névoa", "Abismo", "Espectro",
+      "Cinza", "Sussurro", "Vazio", "Mortalha",
+    ],
+  },
+
   // Mensagens do Sistema
   MESSAGES: {
     AWAKENING_TITLE: "§b[ SISTEMA ]",
