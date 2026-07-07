@@ -205,6 +205,37 @@ export const CONFIG = {
       desc: "+50% de mana máxima e regeneração, +10% de XP" },
   ],
 
+  // --- Exército de Sombras ---
+  SHADOWS: {
+    UNLOCK_LEVEL: 8,
+    // mobs elegíveis -> tipo de sombra
+    ELIGIBLE: {
+      "minecraft:zombie": "warrior",
+      "minecraft:husk": "warrior",
+      "minecraft:drowned": "warrior",
+      "minecraft:zombie_villager": "warrior",
+      "minecraft:skeleton": "archer",
+      "minecraft:stray": "archer",
+      "minecraft:bogged": "archer",
+    },
+    TYPES: {
+      warrior: { entity: "arise:shadow_warrior", nome: "Sombra Guerreira" },
+      archer: { entity: "arise:shadow_archer", nome: "Sombra Arqueira" },
+    },
+    EXTRACT_WINDOW_MS: 30000, // janela após a morte do mob
+    MAX_RECENT: 5,            // cadáveres lembrados por jogador
+    EXTRACT_COST: 15,         // mana por tentativa de extração
+    SUMMON_COST: 8,           // mana para invocar da reserva
+    BASE_CHANCE: 0.6,         // chance de sucesso da extração
+    PER_BONUS: 0.02,          // +2% por ponto de Percepção
+    CAP_BASE: 1,              // limite = base + nivel/CAP_PER_LEVELS
+    CAP_PER_LEVELS: 5,
+    OWNER_XP_SHARE: 0.5,      // % do XP do abate que vai para o dono
+    TIER_THRESHOLDS: [0, 10, 30], // xp da sombra p/ tiers 1/2/3
+    FOLLOW_TELEPORT_DIST: 20, // distância que força teleporte até o dono
+    FOLLOW_CHECK_EVERY: 4,    // ciclos do MAIN entre checagens (40 ticks)
+  },
+
   // Mensagens do Sistema
   MESSAGES: {
     AWAKENING_TITLE: "§b[ SISTEMA ]",

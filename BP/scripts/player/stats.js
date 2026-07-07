@@ -101,7 +101,7 @@ function onLevelUp(player, level, points) {
   }
 }
 
-function xpForMob(typeId) {
+export function xpForMob(typeId) {
   const v = CONFIG.XP.TABLE[typeId];
   return typeof v === "number" ? v : CONFIG.XP.DEFAULT;
 }

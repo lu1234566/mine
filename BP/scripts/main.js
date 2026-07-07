@@ -11,6 +11,7 @@ import { initDailyQuest, tickDaily } from "./player/dailyQuest.js";
 import { initClasses } from "./player/classes.js";
 import { initSkills } from "./skills/skillRegistry.js";
 import { initDevour, tickTraits } from "./skills/devour.js";
+import { initShadows, tickShadows } from "./skills/shadowArmy.js";
 import { initMenus } from "./ui/menus.js";
 
 const NS = CONFIG.NAMESPACE;
@@ -19,7 +20,7 @@ const DP_AWAKENED = `${NS}:awakened`;
 // ------------------------------------------------------------
 // Log de inicialização — visível no Log de Conteúdo (Content Log)
 // ------------------------------------------------------------
-console.log("[ARISE] Script carregado. Fase 4 (devorar/evolução) ativa.");
+console.log("[ARISE] Script carregado. Fase 5 (sombras) ativa.");
 
 // A ordem define a ordem das seções no menu principal
 initMenus();
@@ -27,6 +28,7 @@ initStats();
 initDailyQuest();
 initSkills();
 initDevour();
+initShadows();
 initClasses();
 
 // ------------------------------------------------------------
@@ -88,6 +90,7 @@ system.runInterval(() => {
         // true quando o jogador está na Zona (HUD própria da zona)
         const emPenalidade = tickDaily(p, ciclo);
         if (!emPenalidade) tickHud(p);
+        tickShadows(p, ciclo);
       } catch (e) {
         console.error("[ARISE] Erro em tick de jogador: " + e);
       }

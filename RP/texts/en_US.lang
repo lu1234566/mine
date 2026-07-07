@@ -7,3 +7,7 @@ item.arise.system_core=System Core
 item.arise:system_core.name=System Core
 item.arise.gate_key_e=Gate Key — Rank E
 item.arise:gate_key_e.name=Gate Key — Rank E
+
+## Entities
+entity.arise:shadow_warrior.name=Shadow Warrior
+entity.arise:shadow_archer.name=Shadow Archer

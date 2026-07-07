@@ -52,3 +52,17 @@ Nenhuma fase exige toggle experimental — se o jogo pedir, é bug: reporte.
 8. Cumprindo os requisitos, escolher **Predador** ou **Sábio** → confirmação explícita ("permanente"), título **[ EVOLUÇÃO ]**, som, e o nametag muda para `‹Predador› SeuNome` (visível para outro jogador/celular; em single player dá para conferir na câmera frontal do F5).
 9. Bônus: Sábio → mana máxima 1,5x no HUD; Predador → chance de Devorar sobe para ~60% no texto do menu Habilidades.
 10. Relogar → espécie, essências, traços e toggle do Devorar persistem; sem erros `[ARISE]` no log.
+
+## Fase 5 — Exército de Sombras
+
+1. Menu → **Habilidades** → "Exército de Sombras" bloqueada antes do nível 8, liberada a partir dele com contador `[ativas/limite]`.
+2. Matar um zumbi ou esqueleto → abrir Habilidades → Exército → **Extrair Sombra** em até 30 s → o cadáver aparece listado ("Zumbi, há Xs — vira Sombra Guerreira").
+3. Extrair (custa 15 de mana, ~60% de chance): no sucesso, título/mensagem "LEVANTE-SE", partícula + som, e surge uma **Sombra Guerreira** (humanoide negro de olhos cianos, nome `Sombra Guerreira [T1]` sobre a cabeça). Na falha, mensagem "a sombra resistiu" e o cadáver é consumido.
+4. Esqueletos viram **Sombra Arqueira** (olhos roxos) que atira flechas.
+5. A sombra anda solta perto de você; se você correr para longe (20+ blocos), ela teleporta até você em ~2 s. Ela ataca sozinha monstros hostis que chegarem a 16 blocos.
+6. Menu → Exército → **Comandar**: "Aguardar aqui" congela a sombra no lugar (e ela para de teleportar); "Seguir-me" solta de novo; "Atacar meu alvo" mirando num mob a até 24 blocos → as sombras teleportam ao redor dele e o combate engata.
+7. "Dispensar todas" → sombras somem com som e vão para a **reserva** (listada no corpo do menu Comandar). **Invocar da reserva** (8 de mana) traz de volta com o MESMO tier/xp.
+8. Deixar a sombra matar ~10 mobs → mensagem "evoluiu para o Tier 2", nome atualiza para `[T2]` e ela fica mais resistente; você ganha metade do XP dos abates dela (o HUD sobe sem você encostar no mob).
+9. Se a sombra morrer em combate → mensagem "caiu e retornou à reserva" (não é perdida).
+10. Limite de ativas = 1 + nível/5 (nível 10 → 3). Tentar passar disso → mensagem de limite.
+11. Relogar → sombras ativas continuam no mundo e a reserva persiste; sem erros `[ARISE]` no log.

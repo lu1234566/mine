@@ -101,12 +101,40 @@ def gate_key_palette(rank):
     return {".": T, "d": d, "c": c}
 
 
+# ---------- Texturas de entidade: pele 64x64 escura c/ olhos ----------
+def make_shadow_skin(path, eye, seed):
+    import random
+    rng = random.Random(seed)
+    px = []
+    for y in range(64):
+        row = []
+        for x in range(64):
+            v = 8 + rng.randint(0, 7)  # quase preto com ruído sutil
+            row.append((v, v, v + 9, 255))
+        px.append(row)
+    # Olhos na face frontal da cabeça (layout padrão: x 8..15, y 8..15)
+    dim = (max(eye[0] // 3, 20), max(eye[1] // 3, 20), max(eye[2] // 3, 20), 255)
+    for ex in (9, 13):
+        for dx in range(2):
+            for dy in range(2):
+                px[11 + dy][ex + dx] = dim
+        px[11][ex] = eye
+        px[11][ex + 1] = eye
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "wb") as f:
+        f.write(png_bytes(64, 64, px))
+    print(f"[textures] {path}")
+
+
 def main():
     root = sys.argv[1] if len(sys.argv) > 1 else "."
     items = f"{root}/RP/textures/items"
     write_png(f"{items}/system_core.png", SYSTEM_CORE_ART, SYSTEM_CORE_PALETTE)
     for rank in GATE_KEY_RANKS:
         write_png(f"{items}/gate_key_{rank}.png", GATE_KEY_ART, gate_key_palette(rank))
+    ent = f"{root}/RP/textures/entity/arise"
+    make_shadow_skin(f"{ent}/shadow_warrior.png", (70, 224, 255, 255), 11)   # olhos cianos
+    make_shadow_skin(f"{ent}/shadow_archer.png", (178, 107, 255, 255), 22)   # olhos roxos
 
 
 if __name__ == "__main__":
