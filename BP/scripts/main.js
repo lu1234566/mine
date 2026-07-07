@@ -12,6 +12,7 @@ import { initClasses } from "./player/classes.js";
 import { initSkills } from "./skills/skillRegistry.js";
 import { initDevour, tickTraits } from "./skills/devour.js";
 import { initShadows, tickShadows } from "./skills/shadowArmy.js";
+import { initGates, tickGates } from "./dungeons/gates.js";
 import { initMenus } from "./ui/menus.js";
 
 const NS = CONFIG.NAMESPACE;
@@ -20,7 +21,7 @@ const DP_AWAKENED = `${NS}:awakened`;
 // ------------------------------------------------------------
 // Log de inicialização — visível no Log de Conteúdo (Content Log)
 // ------------------------------------------------------------
-console.log("[ARISE] Script carregado. Fase 5 (sombras) ativa.");
+console.log("[ARISE] Script carregado. Fase 6 (portais) ativa.");
 
 // A ordem define a ordem das seções no menu principal
 initMenus();
@@ -30,6 +31,7 @@ initSkills();
 initDevour();
 initShadows();
 initClasses();
+initGates();
 
 // ------------------------------------------------------------
 // Entrada do jogador: despertar (1ª vez) + entrega do Núcleo
@@ -95,6 +97,7 @@ system.runInterval(() => {
         console.error("[ARISE] Erro em tick de jogador: " + e);
       }
     }
+    tickGates(ciclo);
     if (ciclo % CONFIG.INTERVALS.EFFECTS_EVERY === 0) {
       for (const p of players) {
         try {

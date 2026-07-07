@@ -66,3 +66,15 @@ Nenhuma fase exige toggle experimental — se o jogo pedir, é bug: reporte.
 9. Se a sombra morrer em combate → mensagem "caiu e retornou à reserva" (não é perdida).
 10. Limite de ativas = 1 + nível/5 (nível 10 → 3). Tentar passar disso → mensagem de limite.
 11. Relogar → sombras ativas continuam no mundo e a reserva persiste; sem erros `[ARISE]` no log.
+
+## Fase 6 — Portais rank E–C
+
+1. Conseguir uma **Chave de Portal — Rank E** (missão diária, ou `/give @s arise:gate_key_e` num mundo de teste com trapaças).
+2. Usar a chave (toque longo) → título **[ PORTAL E ]**, som de portal, a chave é consumida e você é levado para o alto da arena remota, descendo de queda lenta enquanto ela é montada (piso de blackstone, muros de obsidiana com veios roxos, lanternas no chão).
+3. Após pousar: título **Onda 1/2** e mobs surgem em círculo ao seu redor. Matar todos → pausa de ~3 s → **Onda 2/2**.
+4. Limpar as ondas → título **[ GUARDIÃO ]** e surge o **Guardião do Portal [E]**: humanoide negro grandão (1,35x) de olhos vermelhos **com barra de chefe no topo da tela**. Suas sombras ajudam na luta (o chefe também as ataca).
+5. Derrotar o chefe → título **[ PORTAL CONQUISTADO ]**, +120 XP, +1 **Cristal de Essência** e ~35% de chance de uma **Chave Rank D** (azul). ~5 s depois você volta exatamente para onde usou a chave e a arena é limpa.
+6. Usar o Cristal de Essência → consumido, +40 XP.
+7. Testar falhas: (a) morrer dentro → respawn normal + "instância colapsou", sem recompensa; (b) usar uma chave enquanto outro portal está aberto → mensagem de ocupado SEM consumir a chave; (c) ficar 10 min sem fechar → o portal colapsa e te devolve.
+8. Rank D (3 ondas, chefe 100 HP) e Rank C (3 ondas com vingadores/saqueadores, chefe 160 HP) funcionam igual, com recompensas maiores.
+9. Sem erros `[ARISE]` no log durante o ciclo completo.

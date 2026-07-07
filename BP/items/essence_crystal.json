@@ -1,0 +1,19 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "arise:essence_crystal",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:max_stack_size": 64,
+      "minecraft:icon": "arise_essence_crystal",
+      "minecraft:display_name": {
+        "value": "item.arise.essence_crystal"
+      },
+      "minecraft:glint": true
+    }
+  }
+}

@@ -7,6 +7,15 @@
     },
     "arise_gate_key_e": {
       "textures": "textures/items/gate_key_e"
+    },
+    "arise_gate_key_d": {
+      "textures": "textures/items/gate_key_d"
+    },
+    "arise_gate_key_c": {
+      "textures": "textures/items/gate_key_c"
+    },
+    "arise_essence_crystal": {
+      "textures": "textures/items/essence_crystal"
     }
   }
 }

@@ -8,6 +8,14 @@ item.arise:system_core.name=Núcleo do Sistema
 item.arise.gate_key_e=Chave de Portal — Rank E
 item.arise:gate_key_e.name=Chave de Portal — Rank E
 
+item.arise.gate_key_d=Chave de Portal — Rank D
+item.arise:gate_key_d.name=Chave de Portal — Rank D
+item.arise.gate_key_c=Chave de Portal — Rank C
+item.arise:gate_key_c.name=Chave de Portal — Rank C
+item.arise.essence_crystal=Cristal de Essência
+item.arise:essence_crystal.name=Cristal de Essência
+
 ## Entidades
 entity.arise:shadow_warrior.name=Sombra Guerreira
 entity.arise:shadow_archer.name=Sombra Arqueira
+entity.arise:gate_guardian.name=Guardião do Portal

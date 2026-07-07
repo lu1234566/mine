@@ -4,7 +4,7 @@ Sistema de progressão RPG inspirado em mangás de "sistema de níveis" e evolu�
 
 **Alvo:** Minecraft Bedrock — desenvolvido/testado no Android (Chromebook), instalado no Nintendo Switch (desbloqueado) via injeção de save com JKSV.
 
-**Estado atual: Fase 5.** Fases 1–4 (despertar, stats/HUD/mana, missão diária + penalidade, Devorar/traços/evolução) + **Exército de Sombras**: extração de sombras de zumbis/esqueletos recém-abatidos (entidades custom com olhos brilhantes), comandos (seguir/aguardar/atacar), reserva persistente e tiers por XP próprio. Checklists de teste por fase: `docs/CHECKLISTS.md`.
+**Estado atual: Fase 6.** Fases 1–5 (despertar, stats/HUD/mana, missão diária + penalidade, Devorar/traços/evolução, Exército de Sombras) + **Portais ranqueados E–C**: chave abre instância única numa arena `.mcstructure` remota, ondas de mobs, Guardião com barra de chefe e recompensas (XP, Cristais de Essência, chave de rank superior). Checklists de teste por fase: `docs/CHECKLISTS.md`.
 
 **Toggles experimentais necessários: NENHUM.** Todas as fases usam apenas módulos estáveis (`@minecraft/server` 1.13.0 e `@minecraft/server-ui` 1.1.0). Se alguma fase futura exigir um experimento, isso será destacado aqui e no checklist da fase.
 
@@ -30,7 +30,7 @@ Regras do projeto: API estável (`@minecraft/server` 1.x), JS puro sem bundler, 
 3. ✅ Missão diária + zona de penalidade
 4. ✅ Devorar: fragmentos de essência, traços, primeira evolução
 5. ✅ Exército de sombras: extração, entidades custom, comandos, reserva
-6. Portais rank E–C com arena
+6. ✅ Portais rank E–C com arena
 7. Balanceamento, ranks B–S, segunda linha de evolução, polish
 
 ---

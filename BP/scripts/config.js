@@ -11,10 +11,16 @@ export const CONFIG = {
   // Identificadores de itens custom
   ITEMS: {
     SYSTEM_CORE: "arise:system_core",
+    ESSENCE_CRYSTAL: "arise:essence_crystal",
     GATE_KEYS: {
       E: "arise:gate_key_e",
+      D: "arise:gate_key_d",
+      C: "arise:gate_key_c",
     },
   },
+
+  // Cristal de Essência: consumir dá um jato de XP
+  CRYSTAL_XP: 40,
 
   // Intervalos (em ticks). Console é o alvo: nunca reduzir MAIN para 1.
   INTERVALS: {
@@ -234,6 +240,53 @@ export const CONFIG = {
     TIER_THRESHOLDS: [0, 10, 30], // xp da sombra p/ tiers 1/2/3
     FOLLOW_TELEPORT_DIST: 20, // distância que força teleporte até o dono
     FOLLOW_CHECK_EVERY: 4,    // ciclos do MAIN entre checagens (40 ticks)
+  },
+
+  // --- Portais ranqueados (Gates) ---
+  GATES: {
+    // item da chave -> rank
+    KEY_RANKS: {
+      "arise:gate_key_e": "E",
+      "arise:gate_key_d": "D",
+      "arise:gate_key_c": "C",
+    },
+    STRUCTURE: "arise:gate_arena",
+    // origem da estrutura 33x12x33 (overworld remoto, longe da penalidade)
+    ARENA: { X: 200000, Y: 80, Z: 200000, SIZE: 33 },
+    TAG: "arise_gate",       // todos os mobs da instância
+    BOSS_TAG: "arise_gate_boss",
+    TIMEOUT_MS: 10 * 60 * 1000, // instância expira em 10 min
+    CHECK_EVERY: 4,          // ciclos do MAIN entre checagens de onda
+    WAVE_DELAY_TICKS: 60,    // pausa entre ondas
+    // Configuração por rank: ondas (listas de mobs), chefe e recompensas
+    RANKS: {
+      E: {
+        waves: [
+          ["minecraft:zombie", "minecraft:zombie", "minecraft:zombie", "minecraft:skeleton"],
+          ["minecraft:zombie", "minecraft:zombie", "minecraft:skeleton", "minecraft:skeleton", "minecraft:spider"],
+        ],
+        bossEvent: "arise:rank_e", bossName: "§2Guardião do Portal §8[E]",
+        xp: 120, crystals: 1, upgradeChance: 0.35, upgradeKey: "arise:gate_key_d",
+      },
+      D: {
+        waves: [
+          ["minecraft:zombie", "minecraft:zombie", "minecraft:skeleton", "minecraft:skeleton"],
+          ["minecraft:skeleton", "minecraft:skeleton", "minecraft:spider", "minecraft:spider", "minecraft:creeper"],
+          ["minecraft:zombie", "minecraft:zombie", "minecraft:zombie", "minecraft:skeleton", "minecraft:witch"],
+        ],
+        bossEvent: "arise:rank_d", bossName: "§9Guardião do Portal §8[D]",
+        xp: 260, crystals: 2, upgradeChance: 0.3, upgradeKey: "arise:gate_key_c",
+      },
+      C: {
+        waves: [
+          ["minecraft:zombie", "minecraft:zombie", "minecraft:skeleton", "minecraft:skeleton", "minecraft:spider"],
+          ["minecraft:cave_spider", "minecraft:cave_spider", "minecraft:skeleton", "minecraft:witch", "minecraft:creeper"],
+          ["minecraft:vindicator", "minecraft:pillager", "minecraft:pillager", "minecraft:zombie", "minecraft:zombie"],
+        ],
+        bossEvent: "arise:rank_c", bossName: "§eGuardião do Portal §8[C]",
+        xp: 520, crystals: 3, upgradeChance: 0.0, upgradeKey: null,
+      },
+    },
   },
 
   // Mensagens do Sistema

@@ -93,6 +93,8 @@ GATE_KEY_ART = [
 # cores (borda, corpo) por rank
 GATE_KEY_RANKS = {
     "e": ((30, 66, 30, 255), (94, 190, 94, 255)),      # verde
+    "d": ((24, 52, 92, 255), (90, 160, 250, 255)),     # azul
+    "c": ((92, 74, 18, 255), (250, 208, 84, 255)),     # amarelo
 }
 
 
@@ -132,9 +134,18 @@ def main():
     write_png(f"{items}/system_core.png", SYSTEM_CORE_ART, SYSTEM_CORE_PALETTE)
     for rank in GATE_KEY_RANKS:
         write_png(f"{items}/gate_key_{rank}.png", GATE_KEY_ART, gate_key_palette(rank))
+    # cristal de essência: mesma arte do núcleo, paleta roxa
+    write_png(f"{items}/essence_crystal.png", SYSTEM_CORE_ART, {
+        ".": T,
+        "d": (56, 22, 88, 255),
+        "b": (140, 70, 200, 255),
+        "c": (190, 120, 255, 255),
+        "w": (245, 225, 255, 255),
+    })
     ent = f"{root}/RP/textures/entity/arise"
     make_shadow_skin(f"{ent}/shadow_warrior.png", (70, 224, 255, 255), 11)   # olhos cianos
     make_shadow_skin(f"{ent}/shadow_archer.png", (178, 107, 255, 255), 22)   # olhos roxos
+    make_shadow_skin(f"{ent}/gate_guardian.png", (255, 74, 74, 255), 33)     # olhos vermelhos
 
 
 if __name__ == "__main__":
