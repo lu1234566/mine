@@ -1,0 +1,44 @@
+name: Build ARISE Add-on
+
+# Roda em QUALQUER push (o deploy é sempre pelo artifact da Action)
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validar todos os JSONs do pack
+        run: |
+          set -e
+          find BP RP -name "*.json" -print0 | while IFS= read -r -d '' f; do
+            python3 -m json.tool "$f" > /dev/null || { echo "JSON inválido: $f"; exit 1; }
+            echo "OK: $f"
+          done
+
+      - name: Checagem de sintaxe dos scripts (ES modules)
+        run: |
+          set -e
+          # Copia scripts como .mjs para o node validar sintaxe de
+          # módulos ES (import/export) sem reclamar de CommonJS
+          find BP/scripts -name "*.js" -print0 | while IFS= read -r -d '' f; do
+            tmp="$(mktemp --suffix=.mjs)"
+            cp "$f" "$tmp"
+            node --check "$tmp"
+            rm -f "$tmp"
+            echo "OK: $f"
+          done
+
+      - name: Empacotar (.mcaddon, .mcpack, .mcworld)
+        run: bash tools/package.sh
+
+      - name: Publicar artefatos
+        uses: actions/upload-artifact@v4
+        with:
+          name: ARISE-addon
+          path: dist/*
+          if-no-files-found: error
