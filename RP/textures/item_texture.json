@@ -14,6 +14,21 @@
     "arise:pocao_xp_sistema": {
       "textures": "textures/items/cristal_essencia"
     },
+    "arise:skill_impulso": {
+      "textures": "textures/items/skills/impulso"
+    },
+    "arise:skill_clarividencia": {
+      "textures": "textures/items/skills/clarividencia"
+    },
+    "arise:skill_golpe_fantasma": {
+      "textures": "textures/items/skills/golpe_fantasma"
+    },
+    "arise:skill_ocultacao": {
+      "textures": "textures/items/skills/ocultacao"
+    },
+    "arise:skill_dreno": {
+      "textures": "textures/items/skills/dreno"
+    },
     "arise:chave_portal_e": {
       "textures": "textures/items/chave_portal_e"
     },

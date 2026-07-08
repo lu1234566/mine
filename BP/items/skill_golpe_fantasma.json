@@ -1,0 +1,19 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "arise:skill_golpe_fantasma",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:max_stack_size": 1,
+      "minecraft:icon": "arise:skill_golpe_fantasma",
+      "minecraft:display_name": {
+        "value": "item.arise.skill_golpe_fantasma"
+      },
+      "minecraft:stacked_by_data": false
+    }
+  }
+}

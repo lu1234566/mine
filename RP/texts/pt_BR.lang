@@ -24,6 +24,16 @@ item.arise.essence_crystal=Cristal de Essência
 item.arise:essence_crystal.name=Cristal de Essência
 item.arise.system_xp_potion=Poção de XP do Sistema
 item.arise:system_xp_potion.name=Poção de XP do Sistema
+item.arise.skill_impulso=Insígnia do Impulso
+item.arise:skill_impulso.name=Insígnia do Impulso
+item.arise.skill_clarividencia=Olho da Clarividência
+item.arise:skill_clarividencia.name=Olho da Clarividência
+item.arise.skill_golpe_fantasma=Lâmina Fantasma
+item.arise:skill_golpe_fantasma.name=Lâmina Fantasma
+item.arise.skill_ocultacao=Manto da Ocultação
+item.arise:skill_ocultacao.name=Manto da Ocultação
+item.arise.skill_dreno=Coração do Dreno
+item.arise:skill_dreno.name=Coração do Dreno
 
 ## Entidades
 entity.arise:shadow_warrior.name=Sombra Guerreira

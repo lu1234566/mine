@@ -1,0 +1,19 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "arise:skill_clarividencia",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:max_stack_size": 1,
+      "minecraft:icon": "arise:skill_clarividencia",
+      "minecraft:display_name": {
+        "value": "item.arise.skill_clarividencia"
+      },
+      "minecraft:stacked_by_data": false
+    }
+  }
+}
