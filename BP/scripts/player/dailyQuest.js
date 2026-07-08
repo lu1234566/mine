@@ -11,7 +11,6 @@ import { world, BlockPermutation } from "@minecraft/server";
 import { CONFIG } from "../config.js";
 import { addXp, xpForNext, giveItem } from "./stats.js";
 import { registerMenuSection } from "../ui/menus.js";
-import { createTickingArea, removeTickingArea } from "../dungeons/instanceAreas.js";
 
 const NS = CONFIG.NAMESPACE;
 const D = CONFIG.DAILY;
@@ -120,27 +119,49 @@ function completeQuest(player) {
 
 // ---------- Zona de Penalidade ----------
 // Estado runtime (não persistido): controle de spawn e construção
-const pzRuntime = new Map(); // player.id -> { lastSpawn, built, areaName, buildUntil }
+const pzRuntime = new Map(); // player.id -> { lastSpawn, built, dim, base, center, buildUntil }
 
-function pzCenter() {
-  return { x: PZ.X + 0.5, y: PZ.Y, z: PZ.Z + 0.5 };
+function clamp(n, min, max) {
+  return Math.max(min, Math.min(max, n));
+}
+
+function dimensionHeightRange(dim) {
+  try {
+    const r = dim.heightRange;
+    return { min: r.min ?? -64, max: r.max ?? 320 };
+  } catch {
+    return { min: -64, max: 320 };
+  }
+}
+
+function localPenaltyArena(player) {
+  const dim = player.dimension;
+  const loc = player.location;
+  const range = dimensionHeightRange(dim);
+  const height = PZ.WALL_HEIGHT + 2;
+  const maxY = range.max - height - 2;
+  const minY = Math.min(PZ.LOCAL_MIN_Y, maxY);
+  const base = {
+    x: Math.floor(loc.x) + PZ.LOCAL_OFFSET_X,
+    y: clamp(Math.floor(loc.y) + PZ.LOCAL_Y_OFFSET, minY, maxY),
+    z: Math.floor(loc.z),
+  };
+  return {
+    dim: dim.id,
+    base,
+    center: { x: base.x + 0.5, y: base.y, z: base.z + 0.5 },
+  };
+}
+
+function pzDimension(rt) {
+  return world.getDimension(rt?.dim ?? "minecraft:overworld");
 }
 
 export function startPenalty(player) {
   try {
     if (dp(player, "pz_active") === true) return;
     const loc = player.location;
-    const c = pzCenter();
-    const area = createTickingArea("penalty", c, PZ.TICKINGAREA_RADIUS);
-    if (!area.ok) {
-      player.sendMessage(
-        MSG + "§cNão foi possível preparar a Zona de Penalidade. " +
-        "Verifique se cheats/comandos estão permitidos. " +
-        `§7(${area.error})`
-      );
-      console.error("[ARISE] Falha ao criar tickingarea da penalidade: " + area.error);
-      return;
-    }
+    const arena = localPenaltyArena(player);
 
     setDp(player, "pz_return", JSON.stringify({
       x: loc.x, y: loc.y, z: loc.z, dim: player.dimension.id,
@@ -150,7 +171,9 @@ export function startPenalty(player) {
     pzRuntime.set(player.id, {
       lastSpawn: 0,
       built: false,
-      areaName: area.name,
+      dim: arena.dim,
+      base: arena.base,
+      center: arena.center,
       buildUntil: Date.now() + PZ.BUILD_TIMEOUT_MS,
     });
 
@@ -161,7 +184,7 @@ export function startPenalty(player) {
     player.playSound("mob.wither.spawn");
     player.sendMessage(MSG + "§cA missão diária foi ignorada. O Sistema cobra o preço.");
 
-    player.sendMessage(MSG + "§7Preparando arena remota da penalidade...");
+    player.sendMessage(MSG + "§7Preparando arena local da penalidade...");
   } catch (e) {
     console.error("[ARISE] Erro em startPenalty: " + e);
   }
@@ -173,7 +196,7 @@ function endPenalty(player, motivo) {
     setDp(player, "pz_active", false);
     setDp(player, "pz_until", undefined);
     pzRuntime.delete(player.id);
-    cleanupPzMobs();
+    cleanupPzMobs(rt);
 
     const raw = dp(player, "pz_return");
     if (typeof raw === "string" && motivo !== "morte") {
@@ -191,14 +214,15 @@ function endPenalty(player, motivo) {
   } catch (e) {
     console.error("[ARISE] Erro em endPenalty: " + e);
   } finally {
-    removeTickingArea(rt?.areaName);
+    cleanupPzArena(rt);
   }
 }
 
-function cleanupPzMobs() {
+function cleanupPzMobs(rt = undefined) {
   try {
-    const dim = world.getDimension("overworld");
-    const c = pzCenter();
+    if (!rt?.center) return;
+    const dim = pzDimension(rt);
+    const c = rt.center;
     for (const e of dim.getEntities({ tags: [PZ.TAG], location: c, maxDistance: 80 })) {
       e.remove();
     }
@@ -207,10 +231,29 @@ function cleanupPzMobs() {
   }
 }
 
+function cleanupPzArena(rt) {
+  if (!rt?.base) return;
+  try {
+    const dim = pzDimension(rt);
+    const air = BlockPermutation.resolve("minecraft:air");
+    const r = PZ.RADIUS;
+    for (let dx = -r; dx <= r; dx++) {
+      for (let dz = -r; dz <= r; dz++) {
+        for (let dy = -1; dy <= PZ.WALL_HEIGHT; dy++) {
+          const block = dim.getBlock({ x: rt.base.x + dx, y: rt.base.y + dy, z: rt.base.z + dz });
+          if (block) block.setPermutation(air);
+        }
+      }
+    }
+  } catch (e) {
+    console.error("[ARISE] Erro em cleanupPzArena: " + e);
+  }
+}
+
 // Constrói a arena (plataforma + muros + teto invisível).
 // Retorna false se o chunk ainda não carregou (tenta de novo depois).
-function buildArena() {
-  const dim = world.getDimension("overworld");
+function buildArena(rt) {
+  const dim = pzDimension(rt);
   const r = PZ.RADIUS;
   try {
     const obsidian = BlockPermutation.resolve("minecraft:obsidian");
@@ -219,20 +262,20 @@ function buildArena() {
     const glow = BlockPermutation.resolve("minecraft:sea_lantern");
     for (let dx = -r; dx <= r; dx++) {
       for (let dz = -r; dz <= r; dz++) {
-        const x = PZ.X + dx, z = PZ.Z + dz;
+        const x = rt.base.x + dx, z = rt.base.z + dz;
         const borda = Math.abs(dx) === r || Math.abs(dz) === r;
         // piso (com pontos de luz)
         const luz = (dx % 4 === 0 && dz % 4 === 0) && !borda;
-        const floor = dim.getBlock({ x, y: PZ.Y - 1, z });
+        const floor = dim.getBlock({ x, y: rt.base.y - 1, z });
         if (!floor) throw new Error("chunk descarregado");
         floor.setPermutation(luz ? glow : obsidian);
         for (let dy = 0; dy < PZ.WALL_HEIGHT; dy++) {
-          const wall = dim.getBlock({ x, y: PZ.Y + dy, z });
+          const wall = dim.getBlock({ x, y: rt.base.y + dy, z });
           if (!wall) throw new Error("chunk descarregado");
           wall.setPermutation(borda ? obsidian : air);
         }
         // teto invisível (anti-torre)
-        const roof = dim.getBlock({ x, y: PZ.Y + PZ.WALL_HEIGHT, z });
+        const roof = dim.getBlock({ x, y: rt.base.y + PZ.WALL_HEIGHT, z });
         if (!roof) throw new Error("chunk descarregado");
         roof.setPermutation(barrier);
       }
@@ -252,26 +295,20 @@ function tickPenalty(player) {
   }
   let rt = pzRuntime.get(player.id);
   if (!rt) {
-    const area = createTickingArea("penalty", pzCenter(), PZ.TICKINGAREA_RADIUS);
-    if (!area.ok) {
-      player.sendMessage(
-        MSG + "§cNão foi possível retomar a Zona de Penalidade. " +
-        "Verifique se tickingareas/comandos estão disponíveis."
-      );
-      endPenalty(player, "erro");
-      return;
-    }
+    const arena = localPenaltyArena(player);
     rt = {
       lastSpawn: 0,
       built: false,
-      areaName: area.name,
+      dim: arena.dim,
+      base: arena.base,
+      center: arena.center,
       buildUntil: Date.now() + PZ.BUILD_TIMEOUT_MS,
     };
     pzRuntime.set(player.id, rt);
   }
 
-  const dim = world.getDimension("overworld");
-  const c = pzCenter();
+  const dim = pzDimension(rt);
+  const c = rt.center;
 
   // 1) constrói a arena quando o chunk carregar e posiciona o jogador
   if (!rt.built) {
@@ -282,7 +319,7 @@ function tickPenalty(player) {
       );
       return;
     }
-    if (buildArena()) {
+    if (buildArena(rt)) {
       rt.built = true;
       player.addEffect("slow_falling", 600, { amplifier: 0, showParticles: false });
       player.addEffect("resistance", 300, { amplifier: 3, showParticles: false });
@@ -399,18 +436,15 @@ export function initDailyQuest() {
         endPenalty(p, "sobreviveu");
       } else {
         // reconectou no meio da pena: recomeça o posicionamento
-        const area = createTickingArea("penalty", pzCenter(), PZ.TICKINGAREA_RADIUS);
-        if (area.ok) {
-          pzRuntime.set(p.id, {
-            lastSpawn: 0,
-            built: false,
-            areaName: area.name,
-            buildUntil: Date.now() + PZ.BUILD_TIMEOUT_MS,
-          });
-        } else {
-          p.sendMessage(MSG + "§cNão foi possível retomar a Zona de Penalidade; comandos/tickingarea indisponíveis.");
-          endPenalty(p, "erro");
-        }
+        const arena = localPenaltyArena(p);
+        pzRuntime.set(p.id, {
+          lastSpawn: 0,
+          built: false,
+          dim: arena.dim,
+          base: arena.base,
+          center: arena.center,
+          buildUntil: Date.now() + PZ.BUILD_TIMEOUT_MS,
+        });
       }
     } catch (e) {
       console.error("[ARISE] Erro em playerSpawn(penalidade): " + e);

@@ -33,7 +33,7 @@ Nenhuma fase exige toggle experimental — se o jogo pedir, é bug: reporte.
 1. Ao entrar no mundo pela primeira vez no dia: título **[ MISSÃO DIÁRIA ]** com a missão sorteada (Caçada, Escavação ou Percurso) e aviso no chat.
 2. Menu do Núcleo → **Missão Diária** → mostra tipo, progresso `X/Y` e o prazo em horas até a virada do dia (UTC).
 3. Cumprir a meta (matar/quebrar/andar) → título **[ MISSÃO CONCLUÍDA ]**, +XP (~35% do nível) e, com sorte (~40%), uma **Chave de Portal — Rank E** no inventário (chave verde; ela só abre portal na Fase 6).
-4. Testar a penalidade sem esperar um dia real: mude a data do Android para o dia seguinte e entre no mundo com a missão incompleta (ou aguarde a virada UTC). Em até 60 s: título vermelho **[ ZONA DE PENALIDADE ]** + som de wither e teleporte para o alto de uma arena de obsidiana remota (você desce de queda lenta enquanto ela é construída).
+4. Testar a penalidade sem esperar um dia real: mude a data do Android para o dia seguinte e entre no mundo com a missão incompleta (ou aguarde a virada UTC). Em até 60 s: título vermelho **[ ZONA DE PENALIDADE ]** + som de wither e teleporte para uma arena de obsidiana local, deslocada da sua posição original.
 5. Dentro da zona: actionbar muda para `☠ ZONA DE PENALIDADE | Sobreviva mais XmYs`; zumbis/esqueletos/aranhas surgem a cada ~15 s (máx. 6 vivos); tentar escalar/fugir te devolve ao centro (teto invisível).
 6. Sobreviver 4 minutos → mensagem verde de dívida paga + teleporte de volta para onde você estava; os mobs da zona somem.
 7. Alternativa: morrer na zona → respawn normal + mensagem "dívida paga" (sem loop de punição).
@@ -70,7 +70,7 @@ Nenhuma fase exige toggle experimental — se o jogo pedir, é bug: reporte.
 ## Fase 6 — Portais rank E–C
 
 1. Conseguir uma **Chave de Portal — Rank E** (missão diária, ou `/give @s arise:gate_key_e` num mundo de teste com trapaças).
-2. Usar a chave (toque longo) → título **[ PORTAL E ]**, som de portal, a chave é consumida e você é levado para o alto da arena remota, descendo de queda lenta enquanto ela é montada (piso de blackstone, muros de obsidiana com veios roxos, lanternas no chão).
+2. Usar a chave (toque longo) → título **[ PORTAL E ]**, som de portal, a chave é consumida e você é levado para uma arena local deslocada da sua posição original (piso de blackstone, muros de obsidiana com veios roxos, lanternas no chão).
 3. Após pousar: título **Onda 1/2** e mobs surgem em círculo ao seu redor. Matar todos → pausa de ~3 s → **Onda 2/2**.
 4. Limpar as ondas → título **[ GUARDIÃO ]** e surge o **Guardião do Portal [E]**: humanoide negro grandão (1,35x) de olhos vermelhos **com barra de chefe no topo da tela**. Suas sombras ajudam na luta (o chefe também as ataca).
 5. Derrotar o chefe → título **[ PORTAL CONQUISTADO ]**, +120 XP, +1 **Cristal de Essência** e ~35% de chance de uma **Chave Rank D** (azul). ~5 s depois você volta exatamente para onde usou a chave e a arena é limpa.

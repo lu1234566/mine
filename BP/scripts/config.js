@@ -142,15 +142,16 @@ export const CONFIG = {
 
   // --- Zona de Penalidade ---
   PENALTY: {
-    X: 100000, Y: 120, Z: 100000, // centro da arena (overworld remoto)
     RADIUS: 10,                   // metade do lado da arena
     WALL_HEIGHT: 5,
+    LOCAL_OFFSET_X: 40,           // deslocamento horizontal local; mantém chunks carregados
+    LOCAL_Y_OFFSET: 80,
+    LOCAL_MIN_Y: 180,
     DURATION_MS: 4 * 60 * 1000,   // 4 minutos de sobrevivência
     SPAWN_EVERY_MS: 15000,
     SPAWN_COUNT: 2,
     MAX_MOBS: 6,
     BUILD_TIMEOUT_MS: 15000,
-    TICKINGAREA_RADIUS: 2,
     MOBS: ["minecraft:zombie", "minecraft:skeleton", "minecraft:spider"],
     TAG: "arise_pz",
   },
@@ -276,13 +277,12 @@ export const CONFIG = {
       "arise:gate_key_s": "S",
     },
     STRUCTURE: "arise:gate_arena",
-    // origem da estrutura 33x12x33 (overworld remoto, longe da penalidade)
-    ARENA: { X: 200000, Y: 80, Z: 200000, SIZE: 33 },
+    // estrutura 33x12x33 construída localmente, deslocada do jogador
+    ARENA: { SIZE: 33, HEIGHT: 12, LOCAL_OFFSET_X: 40, LOCAL_Y_OFFSET: 80, LOCAL_MIN_Y: 180 },
     TAG: "arise_gate",       // todos os mobs da instância
     BOSS_TAG: "arise_gate_boss",
     TIMEOUT_MS: 10 * 60 * 1000, // instância expira em 10 min
     BUILD_TIMEOUT_MS: 15000, // falha técnica se a arena não carregar
-    TICKINGAREA_RADIUS: 3,   // raio em chunks (0..4)
     CHECK_EVERY: 4,          // ciclos do MAIN entre checagens de onda
     WAVE_DELAY_TICKS: 60,    // pausa entre ondas
     // Configuração por rank: ondas (listas de mobs), chefe e recompensas

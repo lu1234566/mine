@@ -1,33 +1,62 @@
 // ============================================================
 // ARISE — gates.js
 // Portais ranqueados: usar uma Chave de Portal abre uma instância
-// (uma por vez) numa arena pré-construída (.mcstructure) em região
-// remota. Ondas de mobs -> chefe com boss bar -> recompensas.
+// (uma por vez) numa arena local deslocada do jogador. Ondas de
+// mobs -> chefe com boss bar -> recompensas.
 //
 // Estado da instância fica em memória (script recarrega junto com
 // o mundo em single player). Mobs da instância levam tag arise_gate
 // e são limpos no fim/abandono.
 // ============================================================
 
-import { world, system, EquipmentSlot } from "@minecraft/server";
+import { world, system, EquipmentSlot, BlockPermutation } from "@minecraft/server";
 import { CONFIG } from "../config.js";
 import { addXp, giveItem } from "../player/stats.js";
-import { createTickingArea, removeTickingArea } from "./instanceAreas.js";
 
 const G = CONFIG.GATES;
 const MSG = CONFIG.MESSAGES.SYSTEM_PREFIX;
 
 // instância única: null ou
 // { rank, playerId, returnTo, phase: "build"|"wave"|"delay"|"boss"|"reward",
-//   wave, delayTicks, until, built, areaName, spawnConfirmed, bossKilled }
+//   wave, delayTicks, until, built, dim, origin, center, spawnConfirmed, bossKilled }
 let gate = null;
 
-function arenaCenter() {
-  const half = Math.floor(G.ARENA.SIZE / 2);
-  return { x: G.ARENA.X + half + 0.5, y: G.ARENA.Y + 1, z: G.ARENA.Z + half + 0.5 };
+function clamp(n, min, max) {
+  return Math.max(min, Math.min(max, n));
 }
 
-function overworld() { return world.getDimension("overworld"); }
+function dimensionHeightRange(dim) {
+  try {
+    const r = dim.heightRange;
+    return { min: r.min ?? -64, max: r.max ?? 320 };
+  } catch {
+    return { min: -64, max: 320 };
+  }
+}
+
+function localArenaFor(player) {
+  const dim = player.dimension;
+  const loc = player.location;
+  const half = Math.floor(G.ARENA.SIZE / 2);
+  const range = dimensionHeightRange(dim);
+  const maxY = range.max - G.ARENA.HEIGHT - 2;
+  const minY = Math.min(G.ARENA.LOCAL_MIN_Y, maxY);
+  const origin = {
+    x: Math.floor(loc.x) + G.ARENA.LOCAL_OFFSET_X - half,
+    y: clamp(Math.floor(loc.y) + G.ARENA.LOCAL_Y_OFFSET, minY, maxY),
+    z: Math.floor(loc.z) - half,
+  };
+  const center = {
+    x: origin.x + half + 0.5,
+    y: origin.y + 1,
+    z: origin.z + half + 0.5,
+  };
+  return { dim: dim.id, origin, center };
+}
+
+function gateDimension(g = gate) {
+  return world.getDimension(g?.dim ?? "minecraft:overworld");
+}
 
 function findPlayer(id) {
   return world.getAllPlayers().find((p) => p.id === id);
@@ -81,18 +110,7 @@ function tryOpenGate(player, rank) {
   const vermelho = Math.random() < CONFIG.BREAKS.RED_CHANCE;
 
   const loc = player.location;
-  const c = arenaCenter();
-  const area = createTickingArea("gate", c, G.TICKINGAREA_RADIUS);
-  if (!area.ok) {
-    giveItem(player, CONFIG.ITEMS.GATE_KEYS[rank], 1);
-    player.sendMessage(
-      MSG + "§cNão foi possível preparar a instância do portal. " +
-      "A chave foi devolvida. Verifique se cheats/comandos estão permitidos. " +
-      `§7(${area.error})`
-    );
-    console.error("[ARISE] Falha ao criar tickingarea do portal: " + area.error);
-    return;
-  }
+  const arena = localArenaFor(player);
 
   gate = {
     rank,
@@ -104,7 +122,9 @@ function tryOpenGate(player, rank) {
     until: Date.now() + G.TIMEOUT_MS,
     buildUntil: Date.now() + G.BUILD_TIMEOUT_MS,
     built: false,
-    areaName: area.name,
+    dim: arena.dim,
+    origin: arena.origin,
+    center: arena.center,
     spawnConfirmed: 0,
     spawnExpected: 0,
     bossKilled: false,
@@ -127,14 +147,15 @@ function tryOpenGate(player, rank) {
     player.sendMessage(MSG + `§5Portal Rank ${rank} aberto. Sobreviva às ondas e derrote o Guardião.`);
   }
 
-  player.sendMessage(MSG + "§7Preparando arena remota...");
+  player.sendMessage(MSG + "§7Preparando arena local...");
 }
 
 // ---------- encerramento ----------
-function cleanupMobs() {
+function cleanupMobs(g = gate) {
   try {
-    const c = arenaCenter();
-    for (const e of overworld().getEntities({ tags: [G.TAG], location: c, maxDistance: 80 })) {
+    if (!g?.center) return;
+    const c = g.center;
+    for (const e of gateDimension(g).getEntities({ tags: [G.TAG], location: c, maxDistance: 80 })) {
       e.remove();
     }
   } catch (e) {
@@ -142,16 +163,35 @@ function cleanupMobs() {
   }
 }
 
+function cleanupArena(g) {
+  if (!g?.origin) return;
+  try {
+    const dim = gateDimension(g);
+    const air = BlockPermutation.resolve("minecraft:air");
+    for (let dx = 0; dx < G.ARENA.SIZE; dx++) {
+      for (let dy = 0; dy < G.ARENA.HEIGHT; dy++) {
+        for (let dz = 0; dz < G.ARENA.SIZE; dz++) {
+          const block = dim.getBlock({
+            x: g.origin.x + dx, y: g.origin.y + dy, z: g.origin.z + dz,
+          });
+          if (block) block.setPermutation(air);
+        }
+      }
+    }
+  } catch (e) {
+    console.error("[ARISE] Erro em cleanupArena(gate): " + e);
+  }
+}
+
 function closeGate(voltarJogador, motivoMsg) {
   const g = gate;
   gate = null;
+  cleanupMobs(g);
   try {
-    cleanupMobs();
     if (!g) return;
     const player = findPlayer(g.playerId);
-    if (!player) return;
-    if (motivoMsg) player.sendMessage(MSG + motivoMsg);
-    if (voltarJogador) {
+    if (player && motivoMsg) player.sendMessage(MSG + motivoMsg);
+    if (player && voltarJogador) {
       try {
         const r = g.returnTo;
         player.teleport({ x: r.x, y: r.y, z: r.z }, { dimension: world.getDimension(r.dim) });
@@ -161,14 +201,14 @@ function closeGate(voltarJogador, motivoMsg) {
       }
     }
   } finally {
-    removeTickingArea(g?.areaName);
+    cleanupArena(g);
   }
 }
 
 // ---------- ondas ----------
 function spawnWave(player, mobs, mobEffects) {
-  const c = arenaCenter();
-  const dim = overworld();
+  const c = gate.center;
+  const dim = gateDimension();
   let i = 0;
   let confirmed = 0;
   for (const typeId of mobs) {
@@ -199,15 +239,16 @@ function spawnWave(player, mobs, mobEffects) {
 }
 
 function spawnBoss(player, rankCfg) {
-  const c = arenaCenter();
+  const c = gate.center;
   try {
-    const boss = overworld().spawnEntity("arise:gate_guardian", { x: c.x, y: c.y, z: c.z });
+    const dim = gateDimension();
+    const boss = dim.spawnEntity("arise:gate_guardian", { x: c.x, y: c.y, z: c.z });
     if (!boss) throw new Error("spawnEntity retornou vazio");
     boss.addTag(G.TAG);
     boss.addTag(G.BOSS_TAG);
     boss.triggerEvent(rankCfg.bossEvent);
     boss.nameTag = rankCfg.bossName;
-    overworld().spawnParticle("minecraft:huge_explosion_emitter", {
+    dim.spawnParticle("minecraft:huge_explosion_emitter", {
       x: c.x, y: c.y + 1, z: c.z,
     });
     player.onScreenDisplay.setTitle("§4[ GUARDIÃO ]", {
@@ -223,13 +264,15 @@ function spawnBoss(player, rankCfg) {
 }
 
 function aliveGateMobs() {
-  const c = arenaCenter();
-  return overworld().getEntities({ tags: [G.TAG], location: c, maxDistance: 60 }).length;
+  const c = gate.center;
+  return gateDimension().getEntities({ tags: [G.TAG], location: c, maxDistance: 60 }).length;
 }
 
 function arenaReady() {
   try {
-    const floor = overworld().getBlock({ x: Math.floor(arenaCenter().x), y: G.ARENA.Y, z: Math.floor(arenaCenter().z) });
+    const floor = gateDimension().getBlock({
+      x: Math.floor(gate.center.x), y: gate.origin.y, z: Math.floor(gate.center.z),
+    });
     return floor !== undefined && floor.typeId !== "minecraft:air";
   } catch {
     return false;
@@ -285,21 +328,19 @@ export function tickGates(ciclo) {
       return;
     }
 
-    const c = arenaCenter();
+    const c = gate.center;
 
     if (gate.phase === "build") {
       if (Date.now() >= gate.buildUntil) {
         giveItem(player, CONFIG.ITEMS.GATE_KEYS[gate.rank], 1);
         closeGate(false,
           "§cFalha técnica ao preparar a arena do portal. A chave foi devolvida. " +
-          "Verifique se tickingareas/comandos estão disponíveis."
+          "Tente abrir em uma área mais livre."
         );
         return;
       }
       try {
-        world.structureManager.place(G.STRUCTURE, overworld(), {
-          x: G.ARENA.X, y: G.ARENA.Y, z: G.ARENA.Z,
-        });
+        world.structureManager.place(G.STRUCTURE, gateDimension(), gate.origin);
         if (!arenaReady()) return;
         gate.built = true;
       } catch {
@@ -307,19 +348,19 @@ export function tickGates(ciclo) {
       }
       player.addEffect("slow_falling", 600, { amplifier: 0, showParticles: false });
       player.addEffect("resistance", 300, { amplifier: 3, showParticles: false });
-      player.teleport(c, { dimension: overworld() });
+      player.teleport(c, { dimension: gateDimension() });
       gate.phase = "delay";
       gate.delayTicks = G.WAVE_DELAY_TICKS;
       return;
     }
 
     // abandono: saiu da região da arena
-    if (player.dimension.id !== "minecraft:overworld" ||
+    if (player.dimension.id !== gate.dim ||
         Math.abs(player.location.x - c.x) > 60 ||
         Math.abs(player.location.z - c.z) > 60) {
       if (gate.red && gate.phase !== "reward") {
         // Portal Vermelho: não há fuga — de volta para dentro
-        player.teleport(c, { dimension: overworld() });
+        player.teleport(c, { dimension: gateDimension() });
         player.sendMessage(MSG + "§4A fenda vermelha não permite fuga.");
       } else {
         closeGate(false, "§cVocê abandonou o portal. A instância colapsou.");
