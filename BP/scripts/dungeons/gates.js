@@ -9,9 +9,10 @@
 // e são limpos no fim/abandono.
 // ============================================================
 
-import { world, system, EquipmentSlot, BlockPermutation } from "@minecraft/server";
+import { world, system, EquipmentSlot } from "@minecraft/server";
 import { CONFIG } from "../config.js";
 import { addXp, giveItem } from "../player/stats.js";
+import { buildGateArena, clamp, clearGateArena, dimensionHeightRange } from "./arenaBuilder.js";
 
 const G = CONFIG.GATES;
 const MSG = CONFIG.MESSAGES.SYSTEM_PREFIX;
@@ -20,19 +21,6 @@ const MSG = CONFIG.MESSAGES.SYSTEM_PREFIX;
 // { rank, playerId, returnTo, phase: "build"|"wave"|"delay"|"boss"|"reward",
 //   wave, delayTicks, until, built, dim, origin, center, spawnConfirmed, bossKilled }
 let gate = null;
-
-function clamp(n, min, max) {
-  return Math.max(min, Math.min(max, n));
-}
-
-function dimensionHeightRange(dim) {
-  try {
-    const r = dim.heightRange;
-    return { min: r.min ?? -64, max: r.max ?? 320 };
-  } catch {
-    return { min: -64, max: 320 };
-  }
-}
 
 function localArenaFor(player) {
   const dim = player.dimension;
@@ -166,18 +154,7 @@ function cleanupMobs(g = gate) {
 function cleanupArena(g) {
   if (!g?.origin) return;
   try {
-    const dim = gateDimension(g);
-    const air = BlockPermutation.resolve("minecraft:air");
-    for (let dx = 0; dx < G.ARENA.SIZE; dx++) {
-      for (let dy = 0; dy < G.ARENA.HEIGHT; dy++) {
-        for (let dz = 0; dz < G.ARENA.SIZE; dz++) {
-          const block = dim.getBlock({
-            x: g.origin.x + dx, y: g.origin.y + dy, z: g.origin.z + dz,
-          });
-          if (block) block.setPermutation(air);
-        }
-      }
-    }
+    clearGateArena(gateDimension(g), g.origin);
   } catch (e) {
     console.error("[ARISE] Erro em cleanupArena(gate): " + e);
   }
@@ -279,6 +256,14 @@ function arenaReady() {
   }
 }
 
+function buildGateInstanceArena() {
+  if (G.SCRIPTED_ARENA_RANKS.includes(gate.rank)) {
+    buildGateArena(gateDimension(), gate.origin, gate.rank);
+  } else {
+    world.structureManager.place(G.STRUCTURE, gateDimension(), gate.origin);
+  }
+}
+
 // ---------- vitória ----------
 function onBossKilled() {
   if (!gate || gate.phase === "reward") return;
@@ -340,7 +325,7 @@ export function tickGates(ciclo) {
         return;
       }
       try {
-        world.structureManager.place(G.STRUCTURE, gateDimension(), gate.origin);
+        buildGateInstanceArena();
         if (!arenaReady()) return;
         gate.built = true;
       } catch {

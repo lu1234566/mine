@@ -7,10 +7,11 @@
 //   pz_active, pz_until, pz_return
 // ============================================================
 
-import { world, BlockPermutation } from "@minecraft/server";
+import { world } from "@minecraft/server";
 import { CONFIG } from "../config.js";
 import { addXp, xpForNext, giveItem } from "./stats.js";
 import { registerMenuSection } from "../ui/menus.js";
+import { clamp, clearBox, dimensionHeightRange, perm, setBlock } from "../dungeons/arenaBuilder.js";
 
 const NS = CONFIG.NAMESPACE;
 const D = CONFIG.DAILY;
@@ -121,19 +122,6 @@ function completeQuest(player) {
 // Estado runtime (não persistido): controle de spawn e construção
 const pzRuntime = new Map(); // player.id -> { lastSpawn, built, dim, base, center, buildUntil }
 
-function clamp(n, min, max) {
-  return Math.max(min, Math.min(max, n));
-}
-
-function dimensionHeightRange(dim) {
-  try {
-    const r = dim.heightRange;
-    return { min: r.min ?? -64, max: r.max ?? 320 };
-  } catch {
-    return { min: -64, max: 320 };
-  }
-}
-
 function localPenaltyArena(player) {
   const dim = player.dimension;
   const loc = player.location;
@@ -235,16 +223,12 @@ function cleanupPzArena(rt) {
   if (!rt?.base) return;
   try {
     const dim = pzDimension(rt);
-    const air = BlockPermutation.resolve("minecraft:air");
     const r = PZ.RADIUS;
-    for (let dx = -r; dx <= r; dx++) {
-      for (let dz = -r; dz <= r; dz++) {
-        for (let dy = -1; dy <= PZ.WALL_HEIGHT; dy++) {
-          const block = dim.getBlock({ x: rt.base.x + dx, y: rt.base.y + dy, z: rt.base.z + dz });
-          if (block) block.setPermutation(air);
-        }
-      }
-    }
+    clearBox(
+      dim,
+      { x: rt.base.x - r, y: rt.base.y - 1, z: rt.base.z - r },
+      { x: rt.base.x + r, y: rt.base.y + PZ.WALL_HEIGHT, z: rt.base.z + r }
+    );
   } catch (e) {
     console.error("[ARISE] Erro em cleanupPzArena: " + e);
   }
@@ -256,28 +240,22 @@ function buildArena(rt) {
   const dim = pzDimension(rt);
   const r = PZ.RADIUS;
   try {
-    const obsidian = BlockPermutation.resolve("minecraft:obsidian");
-    const barrier = BlockPermutation.resolve("minecraft:barrier");
-    const air = BlockPermutation.resolve("minecraft:air");
-    const glow = BlockPermutation.resolve("minecraft:sea_lantern");
+    const obsidian = perm("minecraft:obsidian");
+    const barrier = perm("minecraft:barrier");
+    const air = perm("minecraft:air");
+    const glow = perm("minecraft:sea_lantern");
     for (let dx = -r; dx <= r; dx++) {
       for (let dz = -r; dz <= r; dz++) {
         const x = rt.base.x + dx, z = rt.base.z + dz;
         const borda = Math.abs(dx) === r || Math.abs(dz) === r;
         // piso (com pontos de luz)
         const luz = (dx % 4 === 0 && dz % 4 === 0) && !borda;
-        const floor = dim.getBlock({ x, y: rt.base.y - 1, z });
-        if (!floor) throw new Error("chunk descarregado");
-        floor.setPermutation(luz ? glow : obsidian);
+        setBlock(dim, { x, y: rt.base.y - 1, z }, luz ? glow : obsidian);
         for (let dy = 0; dy < PZ.WALL_HEIGHT; dy++) {
-          const wall = dim.getBlock({ x, y: rt.base.y + dy, z });
-          if (!wall) throw new Error("chunk descarregado");
-          wall.setPermutation(borda ? obsidian : air);
+          setBlock(dim, { x, y: rt.base.y + dy, z }, borda ? obsidian : air);
         }
         // teto invisível (anti-torre)
-        const roof = dim.getBlock({ x, y: rt.base.y + PZ.WALL_HEIGHT, z });
-        if (!roof) throw new Error("chunk descarregado");
-        roof.setPermutation(barrier);
+        setBlock(dim, { x, y: rt.base.y + PZ.WALL_HEIGHT, z }, barrier);
       }
     }
     return true;
