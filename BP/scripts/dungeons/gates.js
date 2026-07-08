@@ -12,13 +12,14 @@
 import { world, system, EquipmentSlot } from "@minecraft/server";
 import { CONFIG } from "../config.js";
 import { addXp, giveItem } from "../player/stats.js";
+import { createTickingArea, removeTickingArea } from "./instanceAreas.js";
 
 const G = CONFIG.GATES;
 const MSG = CONFIG.MESSAGES.SYSTEM_PREFIX;
 
 // instância única: null ou
 // { rank, playerId, returnTo, phase: "build"|"wave"|"delay"|"boss"|"reward",
-//   wave, delayTicks, until, built }
+//   wave, delayTicks, until, built, areaName, spawnConfirmed, bossKilled }
 let gate = null;
 
 function arenaCenter() {
@@ -80,6 +81,19 @@ function tryOpenGate(player, rank) {
   const vermelho = Math.random() < CONFIG.BREAKS.RED_CHANCE;
 
   const loc = player.location;
+  const c = arenaCenter();
+  const area = createTickingArea("gate", c, G.TICKINGAREA_RADIUS);
+  if (!area.ok) {
+    giveItem(player, CONFIG.ITEMS.GATE_KEYS[rank], 1);
+    player.sendMessage(
+      MSG + "§cNão foi possível preparar a instância do portal. " +
+      "A chave foi devolvida. Verifique se cheats/comandos estão permitidos. " +
+      `§7(${area.error})`
+    );
+    console.error("[ARISE] Falha ao criar tickingarea do portal: " + area.error);
+    return;
+  }
+
   gate = {
     rank,
     playerId: player.id,
@@ -88,7 +102,12 @@ function tryOpenGate(player, rank) {
     wave: 0,
     delayTicks: 0,
     until: Date.now() + G.TIMEOUT_MS,
+    buildUntil: Date.now() + G.BUILD_TIMEOUT_MS,
     built: false,
+    areaName: area.name,
+    spawnConfirmed: 0,
+    spawnExpected: 0,
+    bossKilled: false,
     red: vermelho,
   };
 
@@ -108,12 +127,7 @@ function tryOpenGate(player, rank) {
     player.sendMessage(MSG + `§5Portal Rank ${rank} aberto. Sobreviva às ondas e derrote o Guardião.`);
   }
 
-  // queda lenta enquanto a arena é montada no chunk que o próprio
-  // jogador carrega ao chegar
-  const c = arenaCenter();
-  player.addEffect("slow_falling", 600, { amplifier: 0, showParticles: false });
-  player.addEffect("resistance", 300, { amplifier: 3, showParticles: false });
-  player.teleport({ x: c.x, y: c.y + 35, z: c.z }, { dimension: overworld() });
+  player.sendMessage(MSG + "§7Preparando arena remota...");
 }
 
 // ---------- encerramento ----------
@@ -131,19 +145,23 @@ function cleanupMobs() {
 function closeGate(voltarJogador, motivoMsg) {
   const g = gate;
   gate = null;
-  cleanupMobs();
-  if (!g) return;
-  const player = findPlayer(g.playerId);
-  if (!player) return;
-  if (motivoMsg) player.sendMessage(MSG + motivoMsg);
-  if (voltarJogador) {
-    try {
-      const r = g.returnTo;
-      player.teleport({ x: r.x, y: r.y, z: r.z }, { dimension: world.getDimension(r.dim) });
-      player.playSound("portal.travel", { volume: 0.5 });
-    } catch (e) {
-      console.error("[ARISE] Erro ao devolver jogador do portal: " + e);
+  try {
+    cleanupMobs();
+    if (!g) return;
+    const player = findPlayer(g.playerId);
+    if (!player) return;
+    if (motivoMsg) player.sendMessage(MSG + motivoMsg);
+    if (voltarJogador) {
+      try {
+        const r = g.returnTo;
+        player.teleport({ x: r.x, y: r.y, z: r.z }, { dimension: world.getDimension(r.dim) });
+        player.playSound("portal.travel", { volume: 0.5 });
+      } catch (e) {
+        console.error("[ARISE] Erro ao devolver jogador do portal: " + e);
+      }
     }
+  } finally {
+    removeTickingArea(g?.areaName);
   }
 }
 
@@ -152,6 +170,7 @@ function spawnWave(player, mobs, mobEffects) {
   const c = arenaCenter();
   const dim = overworld();
   let i = 0;
+  let confirmed = 0;
   for (const typeId of mobs) {
     try {
       const ang = (Math.PI * 2 * i) / mobs.length;
@@ -159,7 +178,9 @@ function spawnWave(player, mobs, mobEffects) {
       const mob = dim.spawnEntity(typeId, {
         x: c.x + Math.cos(ang) * dist, y: c.y, z: c.z + Math.sin(ang) * dist,
       });
+      if (!mob) throw new Error("spawnEntity retornou vazio");
       mob.addTag(G.TAG);
+      confirmed++;
       // ranks altos: mobs buffados por efeitos (escala sem novas entidades)
       for (const fx of mobEffects ?? []) {
         try {
@@ -173,13 +194,15 @@ function spawnWave(player, mobs, mobEffects) {
       console.error("[ARISE] Erro ao spawnar onda: " + e);
     }
   }
-  player.playSound("mob.evocation_illager.prepare_summon", { volume: 0.7 });
+  if (confirmed > 0) player.playSound("mob.evocation_illager.prepare_summon", { volume: 0.7 });
+  return confirmed;
 }
 
 function spawnBoss(player, rankCfg) {
   const c = arenaCenter();
   try {
     const boss = overworld().spawnEntity("arise:gate_guardian", { x: c.x, y: c.y, z: c.z });
+    if (!boss) throw new Error("spawnEntity retornou vazio");
     boss.addTag(G.TAG);
     boss.addTag(G.BOSS_TAG);
     boss.triggerEvent(rankCfg.bossEvent);
@@ -192,8 +215,10 @@ function spawnBoss(player, rankCfg) {
       fadeInDuration: 5, stayDuration: 50, fadeOutDuration: 15,
     });
     player.playSound("mob.wither.spawn", { volume: 0.6 });
+    return 1;
   } catch (e) {
     console.error("[ARISE] Erro ao spawnar chefe: " + e);
+    return 0;
   }
 }
 
@@ -202,9 +227,19 @@ function aliveGateMobs() {
   return overworld().getEntities({ tags: [G.TAG], location: c, maxDistance: 60 }).length;
 }
 
+function arenaReady() {
+  try {
+    const floor = overworld().getBlock({ x: Math.floor(arenaCenter().x), y: G.ARENA.Y, z: Math.floor(arenaCenter().z) });
+    return floor !== undefined && floor.typeId !== "minecraft:air";
+  } catch {
+    return false;
+  }
+}
+
 // ---------- vitória ----------
 function onBossKilled() {
   if (!gate || gate.phase === "reward") return;
+  gate.bossKilled = true;
   gate.phase = "reward";
   const player = findPlayer(gate.playerId);
   const cfg = G.RANKS[gate.rank];
@@ -253,14 +288,25 @@ export function tickGates(ciclo) {
     const c = arenaCenter();
 
     if (gate.phase === "build") {
+      if (Date.now() >= gate.buildUntil) {
+        giveItem(player, CONFIG.ITEMS.GATE_KEYS[gate.rank], 1);
+        closeGate(false,
+          "§cFalha técnica ao preparar a arena do portal. A chave foi devolvida. " +
+          "Verifique se tickingareas/comandos estão disponíveis."
+        );
+        return;
+      }
       try {
         world.structureManager.place(G.STRUCTURE, overworld(), {
           x: G.ARENA.X, y: G.ARENA.Y, z: G.ARENA.Z,
         });
+        if (!arenaReady()) return;
         gate.built = true;
       } catch {
         return; // chunk ainda carregando; tenta no próximo ciclo
       }
+      player.addEffect("slow_falling", 600, { amplifier: 0, showParticles: false });
+      player.addEffect("resistance", 300, { amplifier: 3, showParticles: false });
       player.teleport(c, { dimension: overworld() });
       gate.phase = "delay";
       gate.delayTicks = G.WAVE_DELAY_TICKS;
@@ -290,10 +336,25 @@ export function tickGates(ciclo) {
         player.onScreenDisplay.setTitle(`§5Onda ${gate.wave}§7/${cfg.waves.length}`, {
           fadeInDuration: 5, stayDuration: 30, fadeOutDuration: 10,
         });
-        spawnWave(player, cfg.waves[gate.wave - 1], cfg.mobEffects);
+        gate.spawnExpected = cfg.waves[gate.wave - 1].length;
+        gate.spawnConfirmed = spawnWave(player, cfg.waves[gate.wave - 1], cfg.mobEffects);
+        if (gate.spawnConfirmed <= 0) {
+          closeGate(true,
+            "§cFalha técnica ao invocar a onda do portal. A instância foi abortada sem recompensa."
+          );
+          return;
+        }
         gate.phase = "wave";
       } else {
-        spawnBoss(player, cfg);
+        gate.spawnExpected = 1;
+        gate.spawnConfirmed = spawnBoss(player, cfg);
+        gate.bossKilled = false;
+        if (gate.spawnConfirmed <= 0) {
+          closeGate(true,
+            "§cFalha técnica ao invocar o Guardião. A instância foi abortada sem recompensa."
+          );
+          return;
+        }
         gate.phase = "boss";
       }
       return;
@@ -302,8 +363,11 @@ export function tickGates(ciclo) {
     if (gate.phase === "wave" || gate.phase === "boss") {
       if (aliveGateMobs() === 0) {
         if (gate.phase === "boss") {
-          // chefe removido sem evento de morte (ex.: descarregou) — trata como vitória
-          onBossKilled();
+          if (!gate.bossKilled) {
+            closeGate(true,
+              "§cO Guardião desapareceu antes de ser derrotado. A instância foi abortada sem recompensa."
+            );
+          }
         } else {
           gate.phase = "delay";
           gate.delayTicks = G.WAVE_DELAY_TICKS;

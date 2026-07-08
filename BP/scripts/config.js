@@ -149,6 +149,8 @@ export const CONFIG = {
     SPAWN_EVERY_MS: 15000,
     SPAWN_COUNT: 2,
     MAX_MOBS: 6,
+    BUILD_TIMEOUT_MS: 15000,
+    TICKINGAREA_RADIUS: 2,
     MOBS: ["minecraft:zombie", "minecraft:skeleton", "minecraft:spider"],
     TAG: "arise_pz",
   },
@@ -279,6 +281,8 @@ export const CONFIG = {
     TAG: "arise_gate",       // todos os mobs da instância
     BOSS_TAG: "arise_gate_boss",
     TIMEOUT_MS: 10 * 60 * 1000, // instância expira em 10 min
+    BUILD_TIMEOUT_MS: 15000, // falha técnica se a arena não carregar
+    TICKINGAREA_RADIUS: 3,   // raio em chunks (0..4)
     CHECK_EVERY: 4,          // ciclos do MAIN entre checagens de onda
     WAVE_DELAY_TICKS: 60,    // pausa entre ondas
     // Configuração por rank: ondas (listas de mobs), chefe e recompensas

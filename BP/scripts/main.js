@@ -15,6 +15,7 @@ import { initActiveSkills, ensureGrimoire } from "./skills/activeSkills.js";
 import { initShadows, tickShadows } from "./skills/shadowArmy.js";
 import { initGates, tickGates } from "./dungeons/gates.js";
 import { initBreaks, tickBreaks } from "./dungeons/breaks.js";
+import { cleanupAriseTickingAreas } from "./dungeons/instanceAreas.js";
 import { initMenus } from "./ui/menus.js";
 
 const NS = CONFIG.NAMESPACE;
@@ -24,6 +25,8 @@ const DP_AWAKENED = `${NS}:awakened`;
 // Log de inicialização — visível no Log de Conteúdo (Content Log)
 // ------------------------------------------------------------
 console.log("[ARISE] Script carregado. Fase 8C (fusão) ativa.");
+
+cleanupAriseTickingAreas();
 
 // A ordem define a ordem das seções no menu principal
 initMenus();

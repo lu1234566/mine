@@ -106,7 +106,7 @@ function reconcile(player) {
 function triggerBreak(player, rank) {
   try {
     removeOneKey(player, rank);
-    setDp(player, "break", JSON.stringify({ rank, until: Date.now() + B.DURATION_MS }));
+    const until = Date.now() + B.DURATION_MS;
 
     player.onScreenDisplay.setTitle("§4[ RUPTURA ]", {
       subtitle: `§cA Chave Rank ${rank} rompeu. A fenda se abre AQUI.`,
@@ -123,6 +123,7 @@ function triggerBreak(player, rank) {
     const dim = player.dimension;
     const l = player.location;
     let i = 0;
+    let spawned = 0;
     for (const typeId of cfg.waves[0]) {
       try {
         const ang = (Math.PI * 2 * i) / cfg.waves[0].length;
@@ -130,7 +131,9 @@ function triggerBreak(player, rank) {
         const mob = dim.spawnEntity(typeId, {
           x: l.x + Math.cos(ang) * dist, y: l.y, z: l.z + Math.sin(ang) * dist,
         });
+        if (!mob) throw new Error("spawnEntity retornou vazio");
         mob.addTag(B.TAG);
+        spawned++;
         for (const fx of cfg.mobEffects ?? []) {
           try {
             mob.addEffect(fx.type, G.MOB_EFFECT_DURATION, {
@@ -143,8 +146,14 @@ function triggerBreak(player, rank) {
         console.error("[ARISE] Erro ao spawnar ruptura: " + e);
       }
     }
+    setDp(player, "break", JSON.stringify({ rank, until, spawned }));
+    if (spawned <= 0) {
+      player.sendMessage(MSG + "§cA ruptura falhou ao materializar inimigos e foi fechada sem recompensa.");
+      endBreak(player, false);
+    }
   } catch (e) {
     console.error("[ARISE] Erro em triggerBreak: " + e);
+    setDp(player, "break", undefined);
   }
 }
 
@@ -192,6 +201,10 @@ export function tickBreaks(player, ciclo) {
     if (ciclo % 2 !== 0) return true; // checa a cada 20 ticks
     const restam = Math.ceil((estado.until - Date.now()) / 1000);
     const vivos = countBreakMobs(player);
+    if ((estado.spawned ?? 0) <= 0) {
+      endBreak(player, false);
+      return false;
+    }
     if (restam <= 0 || vivos === 0) {
       endBreak(player, true);
       return false;
