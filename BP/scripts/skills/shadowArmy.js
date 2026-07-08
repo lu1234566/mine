@@ -114,6 +114,27 @@ function spawnShadow(player, rec, loc) {
 
 function activeCount(recs) { return recs.filter((r) => r.active).length; }
 
+function isValidEntity(ent) {
+  if (!ent) return false;
+  try {
+    if (typeof ent.isValid === "function") return ent.isValid();
+    if (typeof ent.isValid === "boolean") return ent.isValid;
+    return typeof ent.typeId === "string";
+  } catch {
+    return false;
+  }
+}
+
+function safeHasTag(ent, tag) {
+  if (!isValidEntity(ent) || typeof ent.hasTag !== "function") return false;
+  try { return ent.hasTag(tag); } catch { return false; }
+}
+
+function safeGetTags(ent) {
+  if (!isValidEntity(ent) || typeof ent.getTags !== "function") return [];
+  try { return ent.getTags(); } catch { return []; }
+}
+
 // ---------- extração ----------
 async function openExtract(player) {
   const mortes = freshDeaths(player);
@@ -312,13 +333,13 @@ async function openSummon(player) {
 
 // ---------- XP e tier das sombras ----------
 function sidFromTags(ent) {
-  for (const t of ent.getTags()) {
+  for (const t of safeGetTags(ent)) {
     if (t.startsWith("arise_sid_")) return Number(t.slice(10));
     }
   return undefined;
 }
 function ownerFromTags(ent) {
-  for (const t of ent.getTags()) {
+  for (const t of safeGetTags(ent)) {
     if (t.startsWith("arise_own_")) return t.slice(10);
   }
   return undefined;
@@ -362,15 +383,16 @@ export function tickShadows(player, ciclo) {
   try {
     const ents = findShadowEntities(player);
     for (const e of ents) {
+      if (!isValidEntity(e)) continue;
       // Elite (8C): partícula ambiente sutil (1 por checagem, barato)
-      if (e.hasTag("arise_elite")) {
+      if (safeHasTag(e, "arise_elite")) {
         try {
           e.dimension.spawnParticle("minecraft:basic_smoke_particle", {
             x: e.location.x, y: e.location.y + 2.1, z: e.location.z,
           });
         } catch { /* cosmético */ }
       }
-      if (e.hasTag("arise_wait")) continue;
+      if (safeHasTag(e, "arise_wait")) continue;
       const d = Math.hypot(
         e.location.x - player.location.x,
         e.location.z - player.location.z
@@ -396,7 +418,7 @@ export function initShadows() {
       const killer = ev.damageSource?.damagingEntity;
 
       // 1) sombra morreu -> volta para a reserva
-      if (dead?.hasTag && dead.hasTag("arise_shadow")) {
+      if (safeHasTag(dead, "arise_shadow")) {
         const sid = sidFromTags(dead);
         const ownerId = ownerFromTags(dead);
         const owner = world.getAllPlayers().find((p) => p.id === ownerId);
@@ -422,12 +444,12 @@ export function initShadows() {
       }
 
       // 2) jogador matou mob elegível -> registra para extração
-      if (killer?.typeId === "minecraft:player" && dead) {
+      if (isValidEntity(killer) && killer.typeId === "minecraft:player" && isValidEntity(dead)) {
         pushDeath(killer, dead);
       }
 
       // 3) sombra matou -> XP da sombra + parte para o dono
-      if (killer?.hasTag && killer.hasTag("arise_shadow") && dead) {
+      if (safeHasTag(killer, "arise_shadow") && isValidEntity(dead)) {
         onShadowKill(killer, dead);
       }
     } catch (e) {
