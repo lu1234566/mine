@@ -22,6 +22,8 @@ item.arise.gate_key_s=Gate Key — Rank S
 item.arise:gate_key_s.name=Gate Key — Rank S
 item.arise.essence_crystal=Essence Crystal
 item.arise:essence_crystal.name=Essence Crystal
+item.arise.system_xp_potion=System XP Potion
+item.arise:system_xp_potion.name=System XP Potion
 
 ## Entities
 entity.arise:shadow_warrior.name=Shadow Warrior

@@ -22,6 +22,8 @@ item.arise.gate_key_s=Chave de Portal — Rank S
 item.arise:gate_key_s.name=Chave de Portal — Rank S
 item.arise.essence_crystal=Cristal de Essência
 item.arise:essence_crystal.name=Cristal de Essência
+item.arise.system_xp_potion=Poção de XP do Sistema
+item.arise:system_xp_potion.name=Poção de XP do Sistema
 
 ## Entidades
 entity.arise:shadow_warrior.name=Sombra Guerreira

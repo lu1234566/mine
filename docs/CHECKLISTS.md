@@ -137,3 +137,12 @@ Nenhuma fase exige toggle experimental — se o jogo pedir, é bug: reporte.
 6. Relogar, dispensar e invocar sombras da reserva para conferir que o visual é reaplicado pelo tier salvo em `arise:shadows`.
 7. Evoluir uma sombra de T2 para T3 por XP e confirmar que os atributos de T3 substituem os de T2, sem duplicar vida/dano.
 8. Rodar uma luta curta com sombras e Guardião; confirmar que não há erros `[ARISE]` no Log de Conteúdo.
+
+## Fase 8E — Poção de XP do Sistema (v0.8.8)
+
+1. Reimportar o pack → na tela de packs a versão deve mostrar **0.8.8**. Se mostrar antiga, remova o pack anterior e importe o novo `.mcaddon`.
+2. Dar o item com `/give @s arise:system_xp_potion 10`.
+3. Usar a poção.
+4. Confirmar que o HUD do ARISE sobe XP/nível.
+5. Confirmar que pontos livres aumentam ao subir de nível.
+6. Confirmar que a XP vanilla não é necessária.

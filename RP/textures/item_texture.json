@@ -11,6 +11,9 @@
     "arise:cristal_essencia": {
       "textures": "textures/items/cristal_essencia"
     },
+    "arise:pocao_xp_sistema": {
+      "textures": "textures/items/cristal_essencia"
+    },
     "arise:chave_portal_e": {
       "textures": "textures/items/chave_portal_e"
     },

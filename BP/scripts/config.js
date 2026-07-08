@@ -13,6 +13,7 @@ export const CONFIG = {
     SYSTEM_CORE: "arise:system_core",
     SKILL_GRIMOIRE: "arise:skill_grimoire",
     ESSENCE_CRYSTAL: "arise:essence_crystal",
+    SYSTEM_XP_POTION: "arise:system_xp_potion",
     GATE_KEYS: {
       E: "arise:gate_key_e",
       D: "arise:gate_key_d",
@@ -25,6 +26,7 @@ export const CONFIG = {
 
   // Cristal de Essência: consumir dá um jato de XP
   CRYSTAL_XP: 40,
+  SYSTEM_XP_POTION_XP: 1000,
 
   // Intervalos (em ticks). Console é o alvo: nunca reduzir MAIN para 1.
   INTERVALS: {

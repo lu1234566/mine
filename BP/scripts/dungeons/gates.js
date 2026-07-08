@@ -56,6 +56,19 @@ function consumeKey(player) {
   }
 }
 
+function consumeMainhandItem(player, typeId) {
+  const eq = player.getComponent("minecraft:equippable");
+  const item = eq?.getEquipment(EquipmentSlot.Mainhand);
+  if (!item || item.typeId !== typeId) return false;
+  if (item.amount > 1) {
+    item.amount -= 1;
+    eq.setEquipment(EquipmentSlot.Mainhand, item);
+  } else {
+    eq.setEquipment(EquipmentSlot.Mainhand, undefined);
+  }
+  return true;
+}
+
 function tryOpenGate(player, rank) {
   if (gate) {
     player.sendMessage(MSG + "§cJá existe um portal aberto. Aguarde a instância encerrar.");
@@ -316,18 +329,18 @@ export function initGates() {
       }
       if (typeId === CONFIG.ITEMS.ESSENCE_CRYSTAL) {
         const p = ev.source;
-        const eq = p.getComponent("minecraft:equippable");
-        const item = eq?.getEquipment(EquipmentSlot.Mainhand);
-        if (!item || item.typeId !== CONFIG.ITEMS.ESSENCE_CRYSTAL) return;
-        if (item.amount > 1) {
-          item.amount -= 1;
-          eq.setEquipment(EquipmentSlot.Mainhand, item);
-        } else {
-          eq.setEquipment(EquipmentSlot.Mainhand, undefined);
-        }
+        if (!consumeMainhandItem(p, CONFIG.ITEMS.ESSENCE_CRYSTAL)) return;
         addXp(p, CONFIG.CRYSTAL_XP);
         p.playSound("random.orb");
         p.sendMessage(MSG + `§dCristal de Essência absorvido: §f+${CONFIG.CRYSTAL_XP} XP.`);
+        return;
+      }
+      if (typeId === CONFIG.ITEMS.SYSTEM_XP_POTION) {
+        const p = ev.source;
+        if (!consumeMainhandItem(p, CONFIG.ITEMS.SYSTEM_XP_POTION)) return;
+        addXp(p, CONFIG.SYSTEM_XP_POTION_XP);
+        p.playSound("random.orb");
+        p.sendMessage(MSG + `§bPoção de XP do Sistema consumida: §f+${CONFIG.SYSTEM_XP_POTION_XP} XP ARISE.`);
       }
     } catch (e) {
       console.error("[ARISE] Erro em itemUse(gates): " + e);
