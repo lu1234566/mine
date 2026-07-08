@@ -12,32 +12,34 @@
 import { world, system, EquipmentSlot } from "@minecraft/server";
 import { CONFIG } from "../config.js";
 import { addXp, giveItem } from "../player/stats.js";
-import { buildGateArena, clamp, clearGateArena, dimensionHeightRange } from "./arenaBuilder.js";
+import { arenaSizeFor, buildArena, clamp, clearBox, clearGateArena, dimensionHeightRange } from "./arenaBuilder.js";
 
 const G = CONFIG.GATES;
 const MSG = CONFIG.MESSAGES.SYSTEM_PREFIX;
 
 // instância única: null ou
 // { rank, playerId, returnTo, phase: "build"|"wave"|"delay"|"boss"|"reward",
-//   wave, delayTicks, until, built, dim, origin, center, spawnConfirmed, bossKilled }
+//   wave, delayTicks, until, built, dim, origin, center, arena, spawnConfirmed, bossKilled }
 let gate = null;
 
-function localArenaFor(player) {
+function localArenaFor(player, rank) {
   const dim = player.dimension;
   const loc = player.location;
-  const half = Math.floor(G.ARENA.SIZE / 2);
+  const size = arenaSizeFor(rank);
+  const halfX = Math.floor(size.sizeX / 2);
+  const halfZ = Math.floor(size.sizeZ / 2);
   const range = dimensionHeightRange(dim);
-  const maxY = range.max - G.ARENA.HEIGHT - 2;
+  const maxY = range.max - size.height - 2;
   const minY = Math.min(G.ARENA.LOCAL_MIN_Y, maxY);
   const origin = {
-    x: Math.floor(loc.x) + G.ARENA.LOCAL_OFFSET_X - half,
+    x: Math.floor(loc.x) + G.ARENA.LOCAL_OFFSET_X - halfX,
     y: clamp(Math.floor(loc.y) + G.ARENA.LOCAL_Y_OFFSET, minY, maxY),
-    z: Math.floor(loc.z) - half,
+    z: Math.floor(loc.z) - halfZ,
   };
   const center = {
-    x: origin.x + half + 0.5,
+    x: origin.x + halfX + 0.5,
     y: origin.y + 1,
-    z: origin.z + half + 0.5,
+    z: origin.z + halfZ + 0.5,
   };
   return { dim: dim.id, origin, center };
 }
@@ -98,7 +100,7 @@ function tryOpenGate(player, rank) {
   const vermelho = Math.random() < CONFIG.BREAKS.RED_CHANCE;
 
   const loc = player.location;
-  const arena = localArenaFor(player);
+  const arena = localArenaFor(player, rank);
 
   gate = {
     rank,
@@ -141,8 +143,8 @@ function tryOpenGate(player, rank) {
 // ---------- encerramento ----------
 function cleanupMobs(g = gate) {
   try {
-    if (!g?.center) return;
-    const c = g.center;
+    const c = g?.arena?.center ?? g?.center;
+    if (!c) return;
     for (const e of gateDimension(g).getEntities({ tags: [G.TAG], location: c, maxDistance: 80 })) {
       e.remove();
     }
@@ -154,7 +156,15 @@ function cleanupMobs(g = gate) {
 function cleanupArena(g) {
   if (!g?.origin) return;
   try {
-    clearGateArena(gateDimension(g), g.origin);
+    if (g.arena) {
+      clearGateArena(gateDimension(g), g.arena);
+    } else {
+      clearBox(
+        gateDimension(g),
+        g.origin,
+        { x: g.origin.x + G.ARENA.SIZE - 1, y: g.origin.y + G.ARENA.HEIGHT - 1, z: g.origin.z + G.ARENA.SIZE - 1 }
+      );
+    }
   } catch (e) {
     console.error("[ARISE] Erro em cleanupArena(gate): " + e);
   }
@@ -184,16 +194,18 @@ function closeGate(voltarJogador, motivoMsg) {
 
 // ---------- ondas ----------
 function spawnWave(player, mobs, mobEffects) {
-  const c = gate.center;
+  const points = gate.arena?.spawnPoints ?? [gate.center];
   const dim = gateDimension();
   let i = 0;
   let confirmed = 0;
   for (const typeId of mobs) {
     try {
-      const ang = (Math.PI * 2 * i) / mobs.length;
-      const dist = 6 + Math.random() * 5;
+      const p = points[i % points.length];
+      const lane = Math.floor(i / points.length);
       const mob = dim.spawnEntity(typeId, {
-        x: c.x + Math.cos(ang) * dist, y: c.y, z: c.z + Math.sin(ang) * dist,
+        x: p.x + (lane % 2) * 0.8,
+        y: p.y,
+        z: p.z + (lane % 3) * 0.8,
       });
       if (!mob) throw new Error("spawnEntity retornou vazio");
       mob.addTag(G.TAG);
@@ -216,7 +228,7 @@ function spawnWave(player, mobs, mobEffects) {
 }
 
 function spawnBoss(player, rankCfg) {
-  const c = gate.center;
+  const c = gate.arena?.bossPoint ?? gate.center;
   try {
     const dim = gateDimension();
     const boss = dim.spawnEntity("arise:gate_guardian", { x: c.x, y: c.y, z: c.z });
@@ -241,14 +253,21 @@ function spawnBoss(player, rankCfg) {
 }
 
 function aliveGateMobs() {
-  const c = gate.center;
+  const c = gate.arena?.center ?? gate.center;
   return gateDimension().getEntities({ tags: [G.TAG], location: c, maxDistance: 60 }).length;
 }
 
 function arenaReady() {
   try {
+    const arena = gate.arena;
+    if (!arena) {
+      const floor = gateDimension().getBlock({
+        x: Math.floor(gate.center.x), y: gate.origin.y, z: Math.floor(gate.center.z),
+      });
+      return floor !== undefined && floor.typeId !== "minecraft:air";
+    }
     const floor = gateDimension().getBlock({
-      x: Math.floor(gate.center.x), y: gate.origin.y, z: Math.floor(gate.center.z),
+      x: Math.floor(arena.center.x), y: arena.floorY, z: Math.floor(arena.center.z),
     });
     return floor !== undefined && floor.typeId !== "minecraft:air";
   } catch {
@@ -258,7 +277,7 @@ function arenaReady() {
 
 function buildGateInstanceArena() {
   if (G.SCRIPTED_ARENA_RANKS.includes(gate.rank)) {
-    buildGateArena(gateDimension(), gate.origin, gate.rank);
+    gate.arena = buildArena(gate.rank, gateDimension(), gate.origin);
   } else {
     world.structureManager.place(G.STRUCTURE, gateDimension(), gate.origin);
   }
@@ -313,7 +332,7 @@ export function tickGates(ciclo) {
       return;
     }
 
-    const c = gate.center;
+    const c = gate.arena?.center ?? gate.center;
 
     if (gate.phase === "build") {
       if (Date.now() >= gate.buildUntil) {
@@ -333,7 +352,7 @@ export function tickGates(ciclo) {
       }
       player.addEffect("slow_falling", 600, { amplifier: 0, showParticles: false });
       player.addEffect("resistance", 300, { amplifier: 3, showParticles: false });
-      player.teleport(c, { dimension: gateDimension() });
+      player.teleport(gate.arena?.center ?? c, { dimension: gateDimension() });
       gate.phase = "delay";
       gate.delayTicks = G.WAVE_DELAY_TICKS;
       return;

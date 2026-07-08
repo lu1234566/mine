@@ -147,15 +147,15 @@ Nenhuma fase exige toggle experimental — se o jogo pedir, é bug: reporte.
 5. Confirmar que pontos livres aumentam ao subir de nível.
 6. Confirmar que a XP vanilla não é necessária.
 
-## Fase 8E-A — Arenas de portal por rank (v0.8.12)
+## Fase 8E-A — Arenas fechadas por rank (v0.8.13)
 
-1. Reimportar o pack → na tela de packs a versão deve mostrar **0.8.12**. Se mostrar antiga, remova o pack anterior e importe o novo `.mcaddon`.
-2. Com o Log de Conteúdo ativado, abra um portal **E** (`/give @s arise:gate_key_e`) em área comum do Overworld. Confirmar: teleporte para arena 33x33 local, piso de blackstone com grade de polished blackstone bricks, obsidiana com crying obsidian nas paredes, luzes no piso, teto invisível, ondas e Guardião funcionam, vitória limpa a arena e devolve ao ponto inicial.
-3. Abra um portal **D** (`/give @s arise:gate_key_d`). Confirmar: piso mais claro de polished/chiseled blackstone, soul lanterns, paredes de obsidiana com crying obsidian; 3 ondas, Guardião D, recompensa e limpeza normal.
-4. Abra um portal **C** (`/give @s arise:gate_key_c`). Confirmar: detalhes de gilded blackstone no piso, paredes de polished blackstone bricks, shroomlights, mobs com resistência e ciclo completo sem erro.
-5. Abra um portal **B** (`/give @s arise:gate_key_b`). Confirmar: piso com gilded/chiseled blackstone, acentos de shroomlight, soul lanterns, mobs buffados, morte dentro colapsa a instância sem recompensa.
-6. Abra um portal **A** (`/give @s arise:gate_key_a`). Confirmar: piso polished blackstone com linhas de moss block, shroomlights, paredes com crying obsidian, mobs com força/velocidade e drop possível da chave S.
-7. Para cada rank E-A, durante a arena tente sair andando/escavar blocos perto da parede: não deve haver fuga útil; o teto invisível bloqueia torre/escape vertical. No fim, volte ao ponto original.
-8. Teste de falha técnica: abrir portal em local onde o chunk da arena demore a carregar não deve travar; se a arena não preparar em ~15 s, a chave é devolvida e a mensagem de falha aparece.
-9. Confirmar que a **Zona de Penalidade** ainda constrói/limpa a arena de obsidiana como antes, sem erro `[ARISE]`, pois agora usa os mesmos helpers de blocos.
-10. Conferir o Log de Conteúdo após cada rank: nenhum erro `[ARISE]`; se aparecer bloco rosa/preto, registrar o rank e o bloco visualmente estranho.
+1. Reimportar o pack → na tela de packs a versão deve mostrar **0.8.13**. Se mostrar antiga, remova o pack anterior e importe o novo `.mcaddon`.
+2. Abra **Rank E** (`/give @s arise:gate_key_e`): confirmar cripta fechada pequena 15×15, teto baixo de cobblestone, mossy cobblestone, soul lanterns nos cantos, mobs vindo dos 4 cantos internos e Guardião no centro.
+3. Abra **Rank D** (`/give @s arise:gate_key_d`): confirmar catacumba 19×19 com 4 pilares internos 2×2, mistura de stonebrick/mossy/cracked, soul lanterns nos pilares, mobs surgindo nas laterais entre pilares e Guardião no centro.
+4. Abra **Rank C** (`/give @s arise:gate_key_c`): confirmar salão longo 15×25, teto alto, faixa central de packed ice, veios de blue ice, altares nas pontas e mobs distribuídos ao longo do corredor.
+5. Abra **Rank B** (`/give @s arise:gate_key_b`): confirmar forja 21×21 com moldura de magma, plataforma central elevada 5×5, 4 plataformas menores 3×3, passarelas, luz quente e Guardião no topo da plataforma central.
+6. Abra **Rank A** (`/give @s arise:gate_key_a`): confirmar santuário 23×23 em formato de cruz, cantos vazios, veios de crying obsidian convergindo ao centro, altares nas 4 pontas e mobs surgindo no fundo dos braços.
+7. Em cada rank E-A, confirme o ciclo completo: onda 1 usa spawnPoints distribuídos, ondas seguintes continuam, Guardião surge no bossPoint, recompensa só após morte real do Guardião, teleporte de volta ao ponto original e limpeza da arena.
+8. Teste falhas preservadas: morrer dentro colapsa sem recompensa; abrir portal enquanto outro está ativo recusa sem consumir chave; se a arena não preparar em ~15 s, a chave é devolvida.
+9. Confirmar que a **Zona de Penalidade** ainda constrói/limpa a arena de obsidiana como antes, sem erro `[ARISE]`, pois usa os mesmos helpers compartilhados.
+10. Conferir Log de Conteúdo após cada rank: nenhum erro `[ARISE]`; se houver bloco rosa/preto ou tijolo de catacumba uniforme demais, registrar rank e posição visual.
