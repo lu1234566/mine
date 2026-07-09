@@ -505,11 +505,14 @@ export const CONFIG = {
   // --- Dungeons de exploração (Subfase 2) ---
   DUNGEONS: {
     CHECK_EVERY: 80,          // 80 ciclos x MAIN(10 ticks) = ~40s
+    PENDING_CHECK_EVERY: 3,   // pendências tentam de novo rápido (~1,5s)
+    PENDING_PLAYER_RANGE: 256,// abandona pendência quando o jogador deixa a área
+    PENDING_MAX_ATTEMPTS: 32, // teto defensivo por região pendente
     REGION_SIZE: 192,         // grade determinística; regiões avaliadas não são persistidas
     REGION_CHANCE: 0.28,
     MIN_DISTANCE: 384,        // distância mínima entre dungeons persistidas
-    SPAWN_DISTANCE: 40,       // perto o bastante para ficar no raio carregado do player
-    SPAWN_DISTANCE_JITTER: 6, // variação leve para não alinhar todas no mesmo anel
+    SPAWN_DISTANCE: 32,       // ajustável para dispositivos com render/simulation curtos
+    SPAWN_DISTANCE_JITTER: 4, // variação leve para não alinhar todas no mesmo anel
     SPAWN_ATTEMPTS: 8,        // tenta pontos próximos antes de desistir da região
     SURFACE_SCAN_UP: 72,
     SURFACE_SCAN_DOWN: 96,

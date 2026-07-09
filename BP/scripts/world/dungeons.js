@@ -4,7 +4,7 @@
 // marco visível, entrada física e baú final finito.
 // ============================================================
 
-import { world, ItemStack } from "@minecraft/server";
+import { world, system, ItemStack } from "@minecraft/server";
 import { CONFIG } from "../config.js";
 import { perm, setBlock, fillBox, clearBox, dimensionHeightRange } from "../dungeons/arenaBuilder.js";
 
@@ -14,6 +14,7 @@ const DP_DUNGEONS = `${NS}:${D.DP_KEY}`;
 const OVERWORLD = "minecraft:overworld";
 
 const sessionFailed = [];
+const pendingRegions = new Map();
 
 const P = {
   air: () => perm("minecraft:air"),
@@ -105,6 +106,17 @@ function regionId(r) {
   return `${r.x},${r.z}`;
 }
 
+function regionCenter(r) {
+  return {
+    x: r.x * D.REGION_SIZE + Math.floor(D.REGION_SIZE / 2),
+    z: r.z * D.REGION_SIZE + Math.floor(D.REGION_SIZE / 2),
+  };
+}
+
+function playerNearRegion(player, r) {
+  return dist2(player.location, regionCenter(r)) <= D.PENDING_PLAYER_RANGE * D.PENDING_PLAYER_RANGE;
+}
+
 function sessionFailedHas(id) {
   return sessionFailed.includes(id);
 }
@@ -113,6 +125,23 @@ function rememberSessionFailed(id) {
   if (sessionFailedHas(id)) return;
   sessionFailed.push(id);
   while (sessionFailed.length > D.SESSION_FAILED_LIMIT) sessionFailed.shift();
+}
+
+function isChunkUnloadedError(e) {
+  return String(e).toLowerCase().includes("chunk descarregado");
+}
+
+function rememberPending(r) {
+  const id = regionId(r);
+  if (pendingRegions.has(id)) return;
+  pendingRegions.set(id, {
+    r,
+    attempts: 0,
+  });
+}
+
+function forgetPending(id) {
+  pendingRegions.delete(id);
 }
 
 function regionQualifies(r) {
@@ -443,19 +472,26 @@ function buildDungeon(dim, surface, r) {
   };
 }
 
-function tryGenerateNear(player) {
+function tryGenerateForRegion(player, r, options = {}) {
   if (player.dimension.id !== OVERWORLD) return;
-  const r = regionFor(player.location);
   const id = regionId(r);
-  if (sessionFailedHas(id)) return;
+  const fromPending = options.fromPending === true;
+  if (!fromPending && sessionFailedHas(id)) return;
   if (!regionQualifies(r)) return;
 
   const list = loadDungeons();
-  if (list.some((d) => d.regionX === r.x && d.regionZ === r.z)) return;
-  if (list.length >= D.MAX_STORED) return;
+  if (list.some((d) => d.regionX === r.x && d.regionZ === r.z)) {
+    forgetPending(id);
+    return;
+  }
+  if (list.length >= D.MAX_STORED) {
+    forgetPending(id);
+    return;
+  }
 
   const dim = player.dimension;
   let lastError = "sem ponto valido";
+  let sawChunkUnloaded = false;
   for (let attempt = 0; attempt < D.SPAWN_ATTEMPTS; attempt++) {
     try {
       const c = candidateNear(player, r, attempt);
@@ -474,15 +510,55 @@ function tryGenerateNear(player) {
       list.push(meta);
       saveDungeons(list);
       player.sendMessage(CONFIG.MESSAGES.SYSTEM_PREFIX + "§8Uma presença sombria foi sentida por perto...");
+      forgetPending(id);
       return;
     } catch (e) {
       lastError = String(e);
+      if (isChunkUnloadedError(e)) sawChunkUnloaded = true;
       console.error("[ARISE] Candidato de dungeon de exploração recusado: " + e);
     }
   }
 
+  if (sawChunkUnloaded) {
+    rememberPending(r);
+    return;
+  }
+
   rememberSessionFailed(id);
+  forgetPending(id);
   console.error("[ARISE] Regiao de dungeon sem candidato valido: " + id + " (" + lastError + ")");
+}
+
+function tryGenerateNear(player) {
+  const r = regionFor(player.location);
+  tryGenerateForRegion(player, r);
+}
+
+function tickPendingDungeons(players) {
+  if (pendingRegions.size === 0) return;
+
+  const entries = Array.from(pendingRegions.entries());
+  for (const [id, pending] of entries) {
+    const nearby = players.find((p) => p.dimension.id === OVERWORLD && playerNearRegion(p, pending.r));
+    if (!nearby) {
+      forgetPending(id);
+      continue;
+    }
+
+    pending.attempts++;
+    if (pending.attempts > D.PENDING_MAX_ATTEMPTS) {
+      rememberSessionFailed(id);
+      forgetPending(id);
+      console.error("[ARISE] Regiao de dungeon pendente abandonada por limite de tentativas: " + id);
+      continue;
+    }
+
+    try {
+      tryGenerateForRegion(nearby, pending.r, { fromPending: true });
+    } catch (e) {
+      console.error("[ARISE] Erro em tentativa pendente de dungeon: " + e);
+    }
+  }
 }
 
 function samePos(a, b) {
@@ -514,12 +590,17 @@ export function initDungeons() {
 
 export function tickDungeons(ciclo) {
   try {
-    if (ciclo % D.CHECK_EVERY !== 0) return;
-    for (const player of world.getAllPlayers()) {
-      try {
-        tryGenerateNear(player);
-      } catch (e) {
-        console.error("[ARISE] Erro em tick de dungeon por jogador: " + e);
+    const players = world.getAllPlayers();
+    if (ciclo % D.PENDING_CHECK_EVERY === 0) {
+      tickPendingDungeons(players);
+    }
+    if (ciclo % D.CHECK_EVERY === 0) {
+      for (const player of players) {
+        try {
+          tryGenerateNear(player);
+        } catch (e) {
+          console.error("[ARISE] Erro em tick de dungeon por jogador: " + e);
+        }
       }
     }
   } catch (e) {

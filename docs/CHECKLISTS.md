@@ -160,21 +160,22 @@ Nenhuma fase exige toggle experimental — se o jogo pedir, é bug: reporte.
 9. Confirmar que a **Zona de Penalidade** ainda constrói/limpa a arena de obsidiana como antes, sem erro `[ARISE]`, pois usa os mesmos helpers compartilhados.
 10. Conferir Log de Conteúdo após cada rank: nenhum erro `[ARISE]`; se houver bloco rosa/preto ou tijolo de catacumba uniforme demais, registrar rank e posição visual.
 
-## Fase 8E-B — Dungeons de exploração robustas (v0.8.23)
+## Fase 8E-B — Dungeons de exploração robustas (v0.8.25)
 
-1. Reimportar o pack → na tela de packs a versão deve mostrar **0.8.23**. Se mostrar antiga, remova o pack anterior e importe o novo `.mcaddon`.
+1. Reimportar o pack → na tela de packs a versão deve mostrar **0.8.25**. Se mostrar antiga, remova o pack anterior e importe o novo `.mcaddon`.
 2. Explorar normalmente em sobrevivência por regiões novas até aparecer `Uma presença sombria foi sentida por perto...`.
 3. Confirmar que a dungeon natural não nasce colada no player, mas fica perto o bastante para aparecer em chunk carregado.
 4. Confirmar que o feixe vertical roxo/luminoso do obelisco aparece de longe, inclusive em floresta densa com copas altas.
 5. Seguir o feixe até o obelisco e confirmar o ciclo completo da estrutura: marco de blackstone/crying obsidian/soul lantern, entrada/escada, sala de deepslate fechada, baú presente e mobs dentro.
 6. Abrir o baú e confirmar que existe loot normal e finito da dungeon; depois de saqueado, o baú não deve ser reabastecido.
 7. Confirmar que a distância mínima entre dungeons continua valendo: explorar áreas próximas não deve amontoar várias dungeons.
-8. Conferir Log de Conteúdo: erro de chunk descarregado pode aparecer como candidato recusado, mas não deve haver dungeon persistida nem lixo parcial, incluindo feixe sem dungeon.
-9. Confirmar que não existe caminho de comando/debug para gerar dungeon grátis no pack final.
+8. Em dispositivo/mundo com render ou simulation distance curto, explorar por alguns minutos e confirmar que regiões qualificadas ainda geram dungeons completas depois que os chunks terminam de carregar.
+9. Conferir Log de Conteúdo: erro de chunk descarregado pode aparecer como candidato recusado, mas não deve haver dungeon persistida nem lixo parcial, incluindo feixe sem dungeon.
+10. Confirmar que não existe caminho de comando/debug para gerar dungeon grátis no pack final.
 
-## Fase 8E-C — Loot por rank nos portões (v0.8.24)
+## Fase 8E-C — Loot por rank nos portões (v0.8.25)
 
-1. Reimportar o pack → na tela de packs a versão deve mostrar **0.8.24**. Se mostrar antiga, remova o pack anterior e importe o novo `.mcaddon`.
+1. Reimportar o pack → na tela de packs a versão deve mostrar **0.8.25**. Se mostrar antiga, remova o pack anterior e importe o novo `.mcaddon`.
 2. Concluir portões Rank E e C; confirmar XP + cristais como antes, chance de chave superior e loot leve escalando entre consumíveis/ferro.
 3. Concluir Portal Rank A; confirmar chance de armadura de diamante encantada e adaga encantada por script.
 4. Concluir Portal Rank S; confirmar adaga encantada garantida, chance alta de armadura encantada e chance rara de variante de topo.
