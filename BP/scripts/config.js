@@ -277,8 +277,8 @@ export const CONFIG = {
       "arise:gate_key_s": "S",
     },
     STRUCTURE: "arise:gate_arena",
-    SCRIPTED_ARENA_RANKS: ["E", "D", "C", "B", "A"],
-    // dimensões máximas/fallback da estrutura S antiga; E-A usam arenaBuilder.js
+    SCRIPTED_ARENA_RANKS: ["E", "D", "C", "B", "A", "S"],
+    // dimensões máximas/fallback; arenas E-S usam arenaBuilder.js
     ARENA: {
       SIZE: 33,
       HEIGHT: 12,
@@ -290,6 +290,7 @@ export const CONFIG = {
     BOSS_TAG: "arise_gate_boss",
     TIMEOUT_MS: 10 * 60 * 1000, // instância expira em 10 min
     BUILD_TIMEOUT_MS: 15000, // falha técnica se a arena não carregar
+    BUILD_TIMEOUT_MS_BY_RANK: { S: 45000 }, // S constrói em camadas para poupar console
     CHECK_EVERY: 4,          // ciclos do MAIN entre checagens de onda
     WAVE_DELAY_TICKS: 60,    // pausa entre ondas
     // Configuração por rank: ondas (listas de mobs), chefe e recompensas

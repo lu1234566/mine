@@ -110,7 +110,8 @@ function tryOpenGate(player, rank) {
     wave: 0,
     delayTicks: 0,
     until: Date.now() + G.TIMEOUT_MS,
-    buildUntil: Date.now() + G.BUILD_TIMEOUT_MS,
+    buildUntil: Date.now() + (G.BUILD_TIMEOUT_MS_BY_RANK?.[rank] ?? G.BUILD_TIMEOUT_MS),
+    buildState: {},
     built: false,
     dim: arena.dim,
     origin: arena.origin,
@@ -277,7 +278,7 @@ function arenaReady() {
 
 function buildGateInstanceArena() {
   if (G.SCRIPTED_ARENA_RANKS.includes(gate.rank)) {
-    gate.arena = buildArena(gate.rank, gateDimension(), gate.origin);
+    gate.arena = buildArena(gate.rank, gateDimension(), gate.origin, gate.buildState);
   } else {
     world.structureManager.place(G.STRUCTURE, gateDimension(), gate.origin);
   }
@@ -345,6 +346,7 @@ export function tickGates(ciclo) {
       }
       try {
         buildGateInstanceArena();
+        if (gate.arena?.buildComplete === false) return;
         if (!arenaReady()) return;
         gate.built = true;
       } catch {
@@ -355,6 +357,12 @@ export function tickGates(ciclo) {
       player.teleport(gate.arena?.center ?? c, { dimension: gateDimension() });
       gate.phase = "delay";
       gate.delayTicks = G.WAVE_DELAY_TICKS;
+      return;
+    }
+
+    if (gate.arena?.openSky && player.dimension.id === gate.dim && player.location.y < gate.arena.floorY - 3) {
+      player.teleport(c, { dimension: gateDimension() });
+      player.sendMessage(MSG + "§5O vazio rejeita sua fuga. Volte ao trono.");
       return;
     }
 

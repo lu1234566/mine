@@ -58,7 +58,7 @@ export const ARENA_SIZES = {
   C: { sizeX: 15, height: 9, sizeZ: 25 },
   B: { sizeX: 21, height: 8, sizeZ: 21 },
   A: { sizeX: 23, height: 9, sizeZ: 23 },
-  S: { sizeX: 33, height: 12, sizeZ: 33 },
+  S: { sizeX: 33, height: 8, sizeZ: 33 },
 };
 
 export function arenaSizeFor(rank) {
@@ -149,6 +149,12 @@ function meta(origin, sizeX, height, sizeZ, center, spawnPoints, bossPoint) {
     floorY: origin.y,
     bounds: bounds(origin, sizeX, height, sizeZ),
   };
+}
+
+function withBuildComplete(arena, buildComplete, openSky = false) {
+  arena.buildComplete = buildComplete;
+  arena.openSky = openSky;
+  return arena;
 }
 
 function setLocal(dim, origin, dx, dy, dz, permutation) {
@@ -324,12 +330,118 @@ function buildSanctuaryA(dim, origin) {
   ], [11, 1, 11]);
 }
 
-export function buildArena(rank, dim, origin) {
+function isInOctagonS(dx, dz) {
+  return dx + dz >= 8 && dx + dz <= 56 && dx - dz <= 24 && dz - dx <= 24;
+}
+
+function isPerimeterS(dx, dz) {
+  if (!isInOctagonS(dx, dz)) return false;
+  return !isInOctagonS(dx - 1, dz) || !isInOctagonS(dx + 1, dz) ||
+    !isInOctagonS(dx, dz - 1) || !isInOctagonS(dx, dz + 1);
+}
+
+function isVertexS(dx, dz) {
+  return (dx === 8 && dz === 0) || (dx === 24 && dz === 0) ||
+    (dx === 32 && dz === 8) || (dx === 32 && dz === 24) ||
+    (dx === 24 && dz === 32) || (dx === 8 && dz === 32) ||
+    (dx === 0 && dz === 24) || (dx === 0 && dz === 8);
+}
+
+function isRadialS(dx, dz) {
+  const ax = Math.abs(dx - 16);
+  const az = Math.abs(dz - 16);
+  return dx === 16 || dz === 16 || ax === az;
+}
+
+function isNearRadialS(dx, dz) {
+  const ax = Math.abs(dx - 16);
+  const az = Math.abs(dz - 16);
+  return Math.abs(dx - 16) <= 1 || Math.abs(dz - 16) <= 1 || Math.abs(ax - az) <= 1;
+}
+
+function isStepRingS(dx, dz, outer, inner) {
+  const ax = Math.abs(dx - 16);
+  const az = Math.abs(dz - 16);
+  return ax <= outer && az <= outer && (ax > inner || az > inner);
+}
+
+function throneBlockS(dx, dy, dz) {
+  if (dy === 1 && isStepRingS(dx, dz, 5, 3)) return P.polishedBlackstoneBricks();
+  if (dy === 2 && isStepRingS(dx, dz, 3, 1)) return P.polishedBlackstoneBricks();
+  if (dy === 3 && Math.abs(dx - 16) <= 1 && Math.abs(dz - 16) <= 1) {
+    if (dx === 16 && dz === 16) return P.cryingObsidian();
+    if ((dx === 15 || dx === 17) && dz === 16) return P.gildedBlackstone();
+    return P.polishedBlackstoneBricks();
+  }
+  if ((dy === 4 || dy === 5) && dx === 16 && dz === 17) return P.cryingObsidian();
+  if (dx === 13 && dz === 18 && dy >= 1 && dy <= 6) return P.blackstone();
+  if (dx === 19 && dz === 18 && dy >= 1 && dy <= 6) return P.blackstone();
+  if (dx === 13 && dz === 18 && dy === 7) return P.soulLantern();
+  if (dx === 19 && dz === 18 && dy === 7) return P.soulLantern();
+  return null;
+}
+
+function blockForThroneS(dx, dy, dz) {
+  if (!isInOctagonS(dx, dz) && !isVertexS(dx, dz)) return P.air();
+
+  const throneBlock = throneBlockS(dx, dy, dz);
+  if (throneBlock) return throneBlock;
+
+  const perimeter = isPerimeterS(dx, dz);
+  const vertex = isVertexS(dx, dz);
+
+  if (dy === 0) {
+    if (perimeter) return P.chiseledPolishedBlackstone();
+    if (isRadialS(dx, dz)) return P.cryingObsidian();
+    if (isNearRadialS(dx, dz)) return P.gildedBlackstone();
+    if ((Math.abs(dx - 16) + Math.abs(dz - 16)) % 5 === 0) return P.polishedBlackstoneBricks();
+    return P.polishedBlackstone();
+  }
+
+  if (vertex && dy >= 1 && dy <= 6) return P.gildedBlackstone();
+  if (vertex && dy === 7) return P.soulLantern();
+
+  if (perimeter && dy >= 1 && dy <= 5) return P.polishedBlackstoneBricks();
+  if (perimeter && dy === 6) {
+    const merlon = (Math.floor((dx + dz) / 2) % 2) === 0;
+    return merlon ? P.polishedBlackstoneBricks() : P.air();
+  }
+
+  return P.air();
+}
+
+function buildThroneS(dim, origin, state = undefined) {
+  const sizeX = 33, height = 8, sizeZ = 33;
+  const buildState = state ?? {};
+  if (typeof buildState.layer !== "number") buildState.layer = 0;
+  if (typeof buildState.done !== "boolean") buildState.done = false;
+  const arena = withBuildComplete(meta(origin, sizeX, height, sizeZ, [16, 1, 16], [
+    [16, 1, 2], [25, 1, 7], [30, 1, 16], [25, 1, 25],
+    [16, 1, 30], [7, 1, 25], [2, 1, 16], [7, 1, 7],
+  ], [16, 4, 16]), buildState.done, true);
+
+  if (buildState.done) return arena;
+
+  const dy = buildState.layer;
+  for (let dx = 0; dx < sizeX; dx++) {
+    for (let dz = 0; dz < sizeZ; dz++) {
+      setLocal(dim, origin, dx, dy, dz, blockForThroneS(dx, dy, dz));
+    }
+  }
+
+  buildState.layer++;
+  buildState.done = buildState.layer >= height;
+  arena.buildComplete = buildState.done;
+  return arena;
+}
+
+export function buildArena(rank, dim, origin, state = undefined) {
   if (rank === "E") return buildCryptE(dim, origin);
   if (rank === "D") return buildCatacombD(dim, origin);
   if (rank === "C") return buildHallC(dim, origin);
   if (rank === "B") return buildForgeB(dim, origin);
   if (rank === "A") return buildSanctuaryA(dim, origin);
+  if (rank === "S") return buildThroneS(dim, origin, state);
   return null;
 }
 
