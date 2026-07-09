@@ -29,3 +29,10 @@ Sanidade para Android:
 
 - `/give @s arise:blade_shadow` deve entregar uma adaga sem opcoes de encantamento na mesa e sem aceitar novos encantamentos pela bigorna.
 - Uma adaga gerada por loot como item ja encantado, por exemplo com Afiacao IV nas Subfases 2/3, deve manter brilho/encantamento e aplicar o dano do encantamento. A adaga base usa `slot: "none"` para separar o suporte de encantamento via loot da interacao de encantamento do player.
+
+Teste temporario de loot encantado:
+
+- Com cheats/comandos habilitados no mundo de teste Android, execute: `/scriptevent arise:debug_blade_loot`
+- Resultado esperado: o chat mostra que a Adaga Sombria de teste foi entregue com Afiacao IV, e o item aparece com brilho/encantamento.
+- Se o chat mostrar que `slot: "none"` recusou Afiacao IV por API de loot/script, a solucao precisa mudar antes das Subfases 2/3.
+- Depois, compare com `/give @s arise:blade_shadow`: a adaga base nao deve oferecer encantamento na mesa nem aceitar encantamento novo pela bigorna.
