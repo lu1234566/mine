@@ -14,6 +14,13 @@ export const CONFIG = {
     SKILL_GRIMOIRE: "arise:skill_grimoire",
     ESSENCE_CRYSTAL: "arise:essence_crystal",
     SYSTEM_XP_POTION: "arise:system_xp_potion",
+    BLADES: {
+      SHADOW: "arise:blade_shadow",
+      SERPENT: "arise:blade_serpent",
+      MONARCH: "arise:blade_monarch",
+      HEADSMAN: "arise:blade_headsman",
+      VOID: "arise:blade_void",
+    },
     GATE_KEYS: {
       E: "arise:gate_key_e",
       D: "arise:gate_key_d",
@@ -27,6 +34,25 @@ export const CONFIG = {
   // Cristal de Essência: consumir dá um jato de XP
   CRYSTAL_XP: 40,
   SYSTEM_XP_POTION_XP: 1000,
+
+  // --- Adagas ---
+  // Stats separados por variante para permitir balanceamento futuro.
+  BLADES: {
+    DEFAULT: {
+      damage: 8,              // espada de diamante = 7; custom precisa ficar acima
+      durability: 1200,
+      enchantValue: 14,
+      stealthMultiplier: 1.75,
+      stealthCooldownTicks: 8, // evita múltiplos bônus no mesmo alvo por spam de evento
+    },
+    VARIANTS: {
+      "arise:blade_shadow":   { damage: 8, durability: 1200, enchantValue: 14, stealthMultiplier: 1.75 },
+      "arise:blade_serpent":  { damage: 8, durability: 1200, enchantValue: 14, stealthMultiplier: 1.75 },
+      "arise:blade_monarch":  { damage: 8, durability: 1200, enchantValue: 14, stealthMultiplier: 1.75 },
+      "arise:blade_headsman": { damage: 8, durability: 1200, enchantValue: 14, stealthMultiplier: 1.75 },
+      "arise:blade_void":     { damage: 8, durability: 1200, enchantValue: 14, stealthMultiplier: 1.75 },
+    },
+  },
 
   // Intervalos (em ticks). Console é o alvo: nunca reduzir MAIN para 1.
   INTERVALS: {

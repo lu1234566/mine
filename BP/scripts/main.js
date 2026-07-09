@@ -15,6 +15,7 @@ import { initActiveSkills, ensureGrimoire } from "./skills/activeSkills.js";
 import { initShadows, tickShadows } from "./skills/shadowArmy.js";
 import { initGates, tickGates } from "./dungeons/gates.js";
 import { initBreaks, tickBreaks } from "./dungeons/breaks.js";
+import { initBlades } from "./items/blades.js";
 import { initMenus } from "./ui/menus.js";
 
 const NS = CONFIG.NAMESPACE;
@@ -36,6 +37,7 @@ initShadows();
 initClasses();
 initGates();
 initBreaks();
+initBlades();
 
 // ------------------------------------------------------------
 // Entrada do jogador: despertar (1ª vez) + entrega do Núcleo

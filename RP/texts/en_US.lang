@@ -34,6 +34,16 @@ item.arise.skill_ocultacao=Cloak of Concealment
 item.arise:skill_ocultacao.name=Cloak of Concealment
 item.arise.skill_dreno=Heart of Drain
 item.arise:skill_dreno.name=Heart of Drain
+item.arise.blade_shadow=Shadow Blade
+item.arise:blade_shadow.name=Shadow Blade
+item.arise.blade_serpent=Serpent Blade
+item.arise:blade_serpent.name=Serpent Blade
+item.arise.blade_monarch=Monarch Blade
+item.arise:blade_monarch.name=Monarch Blade
+item.arise.blade_headsman=Headsman Blade
+item.arise:blade_headsman.name=Headsman Blade
+item.arise.blade_void=Void Blade
+item.arise:blade_void.name=Void Blade
 
 ## Entities
 entity.arise:shadow_warrior.name=Shadow Warrior

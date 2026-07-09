@@ -46,6 +46,21 @@
     },
     "arise:chave_portal_s": {
       "textures": "textures/items/chave_portal_s"
+    },
+    "arise:blade_shadow": {
+      "textures": "textures/items/adagas/adaga_sombria"
+    },
+    "arise:blade_serpent": {
+      "textures": "textures/items/adagas/adaga_serpente"
+    },
+    "arise:blade_monarch": {
+      "textures": "textures/items/adagas/adaga_monarca"
+    },
+    "arise:blade_headsman": {
+      "textures": "textures/items/adagas/adaga_algoz"
+    },
+    "arise:blade_void": {
+      "textures": "textures/items/adagas/adaga_vazio"
     }
   }
 }

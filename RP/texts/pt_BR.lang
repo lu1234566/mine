@@ -34,6 +34,16 @@ item.arise.skill_ocultacao=Manto da Ocultação
 item.arise:skill_ocultacao.name=Manto da Ocultação
 item.arise.skill_dreno=Coração do Dreno
 item.arise:skill_dreno.name=Coração do Dreno
+item.arise.blade_shadow=Adaga Sombria
+item.arise:blade_shadow.name=Adaga Sombria
+item.arise.blade_serpent=Adaga da Serpente
+item.arise:blade_serpent.name=Adaga da Serpente
+item.arise.blade_monarch=Adaga do Monarca
+item.arise:blade_monarch.name=Adaga do Monarca
+item.arise.blade_headsman=Adaga do Algoz
+item.arise:blade_headsman.name=Adaga do Algoz
+item.arise.blade_void=Adaga do Vazio
+item.arise:blade_void.name=Adaga do Vazio
 
 ## Entidades
 entity.arise:shadow_warrior.name=Sombra Guerreira
