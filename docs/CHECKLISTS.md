@@ -160,13 +160,16 @@ Nenhuma fase exige toggle experimental — se o jogo pedir, é bug: reporte.
 9. Confirmar que a **Zona de Penalidade** ainda constrói/limpa a arena de obsidiana como antes, sem erro `[ARISE]`, pois usa os mesmos helpers compartilhados.
 10. Conferir Log de Conteúdo após cada rank: nenhum erro `[ARISE]`; se houver bloco rosa/preto ou tijolo de catacumba uniforme demais, registrar rank e posição visual.
 
-## Fase 8E-B — Dungeons de exploração robustas (v0.8.21)
+## Fase 8E-B — Dungeons de exploração robustas (v0.8.22)
 
-1. Reimportar o pack → na tela de packs a versão deve mostrar **0.8.21**. Se mostrar antiga, remova o pack anterior e importe o novo `.mcaddon`.
+1. Reimportar o pack → na tela de packs a versão deve mostrar **0.8.22**. Se mostrar antiga, remova o pack anterior e importe o novo `.mcaddon`.
 2. Em mundo de teste com trapaças, use `/scriptevent arise:debug_dungeon`.
 3. Confirmar no chat a mensagem `Dungeon debug gerada em X, Y, Z`. Se aparecer aviso de chunk descarregado, ande para uma área aberta e tente de novo.
 4. Ir até o ponto indicado e confirmar que não apareceu estrutura parcial: nada de parede cortada, sala pela metade, terra bruta invadindo a câmara ou marcador sem interior.
 5. Confirmar o ciclo completo da estrutura: marco de blackstone/crying obsidian/soul lantern, entrada/escada, sala de deepslate fechada, baú presente e mobs dentro.
 6. Abrir o baú e confirmar que existe loot normal da dungeon. Não precisa validar balanceamento do loot neste teste.
 7. Teste de falha: force o comando perto de borda de carregamento ou área recém-carregada; se o script recusar por chunk, confirme que não sobra marco, túnel, sala parcial ou baú quebrado no mundo.
-8. Conferir Log de Conteúdo: erro de chunk descarregado no debug pode aparecer como falha recusada, mas não deve haver dungeon persistida nem lixo parcial.
+8. Explorar normalmente em sobrevivência por regiões novas até aparecer `Uma presença sombria foi sentida por perto...`; confirmar que a dungeon natural surge completa, com marco, entrada, sala, baú, mobs e loot.
+9. Confirmar que a dungeon natural não nasce colada no player, mas fica perto o bastante para aparecer em chunk carregado.
+10. Confirmar que a distância mínima entre dungeons continua valendo: explorar áreas próximas não deve amontoar várias dungeons.
+11. Conferir Log de Conteúdo: erro de chunk descarregado pode aparecer como candidato recusado, mas não deve haver dungeon persistida nem lixo parcial.

@@ -438,8 +438,9 @@ export const CONFIG = {
     REGION_SIZE: 192,         // grade determinística; regiões avaliadas não são persistidas
     REGION_CHANCE: 0.28,
     MIN_DISTANCE: 384,        // distância mínima entre dungeons persistidas
-    CANDIDATE_RADIUS_MIN: 52, // longe o bastante para não nascer em cima do player
-    CANDIDATE_RADIUS_MAX: 76,
+    SPAWN_DISTANCE: 40,       // perto o bastante para ficar no raio carregado do player
+    SPAWN_DISTANCE_JITTER: 6, // variação leve para não alinhar todas no mesmo anel
+    SPAWN_ATTEMPTS: 8,        // tenta pontos próximos antes de desistir da região
     SURFACE_SCAN_UP: 72,
     SURFACE_SCAN_DOWN: 96,
     MAX_STORED: 120,          // teto defensivo para a dynamic property de dungeons geradas

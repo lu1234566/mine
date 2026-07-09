@@ -118,13 +118,20 @@ function regionQualifies(r) {
   return hash01("arise_dungeon_region", r.x, r.z) < D.REGION_CHANCE;
 }
 
-function candidateNear(player, r) {
-  const angle = hash01("arise_dungeon_angle", r.x, r.z) * Math.PI * 2;
-  const radius = D.CANDIDATE_RADIUS_MIN +
-    Math.floor(hash01("arise_dungeon_radius", r.x, r.z) * (D.CANDIDATE_RADIUS_MAX - D.CANDIDATE_RADIUS_MIN));
+function candidateNear(player, r, attempt) {
+  const angle = (hash01("arise_dungeon_angle", r.x, r.z) +
+    attempt * 0.38196601125) * Math.PI * 2;
+  const dx = Math.cos(angle);
+  let dz = Math.sin(angle);
+  // O layout se estende para +Z; manter o marco ao norte/lateral evita empurrar a sala para chunk de borda.
+  if (dz > 0.25) dz *= -1;
+  const jitterSpan = D.SPAWN_DISTANCE_JITTER * 2 + 1;
+  const jitter = Math.floor(hash01("arise_dungeon_radius", r.x, r.z, attempt) * jitterSpan) -
+    D.SPAWN_DISTANCE_JITTER;
+  const radius = Math.max(24, D.SPAWN_DISTANCE + jitter);
   return {
-    x: Math.floor(player.location.x + Math.cos(angle) * radius),
-    z: Math.floor(player.location.z + Math.sin(angle) * radius),
+    x: Math.floor(player.location.x + dx * radius),
+    z: Math.floor(player.location.z + dz * radius),
   };
 }
 
@@ -422,27 +429,34 @@ function tryGenerateNear(player) {
   if (list.length >= D.MAX_STORED) return;
 
   const dim = player.dimension;
-  try {
-    const c = candidateNear(player, r);
-    const surface = findSurface(dim, c.x, c.z, player.location.y);
-    if (!surface) {
-      rememberSessionFailed(id);
-      return;
-    }
-    if (!farFromExisting(surface, list)) return;
-    if (hasPlayerConstruction(dim, surface)) {
-      rememberSessionFailed(id);
-      return;
-    }
+  let lastError = "sem ponto valido";
+  for (let attempt = 0; attempt < D.SPAWN_ATTEMPTS; attempt++) {
+    try {
+      const c = candidateNear(player, r, attempt);
+      const surface = findSurface(dim, c.x, c.z, player.location.y);
+      if (!surface) {
+        lastError = "superficie nao encontrada";
+        continue;
+      }
+      if (!farFromExisting(surface, list)) return;
+      if (hasPlayerConstruction(dim, surface)) {
+        lastError = "construcao do jogador perto demais";
+        continue;
+      }
 
-    const meta = buildDungeon(dim, surface, r);
-    list.push(meta);
-    saveDungeons(list);
-    player.sendMessage(CONFIG.MESSAGES.SYSTEM_PREFIX + "§8Uma presença sombria foi sentida por perto...");
-  } catch (e) {
-    rememberSessionFailed(id);
-    console.error("[ARISE] Erro ao tentar gerar dungeon de exploração: " + e);
+      const meta = buildDungeon(dim, surface, r);
+      list.push(meta);
+      saveDungeons(list);
+      player.sendMessage(CONFIG.MESSAGES.SYSTEM_PREFIX + "§8Uma presença sombria foi sentida por perto...");
+      return;
+    } catch (e) {
+      lastError = String(e);
+      console.error("[ARISE] Candidato de dungeon de exploração recusado: " + e);
+    }
   }
+
+  rememberSessionFailed(id);
+  console.error("[ARISE] Regiao de dungeon sem candidato valido: " + id + " (" + lastError + ")");
 }
 
 function debugDungeonCandidates(player) {
