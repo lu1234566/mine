@@ -41,16 +41,15 @@ export const CONFIG = {
     DEFAULT: {
       damage: 8,              // espada de diamante = 7; custom precisa ficar acima
       durability: 1200,
-      enchantValue: 14,
       stealthMultiplier: 1.75,
       stealthCooldownTicks: 8, // evita múltiplos bônus no mesmo alvo por spam de evento
     },
     VARIANTS: {
-      "arise:blade_shadow":   { damage: 8, durability: 1200, enchantValue: 14, stealthMultiplier: 1.75 },
-      "arise:blade_serpent":  { damage: 8, durability: 1200, enchantValue: 14, stealthMultiplier: 1.75 },
-      "arise:blade_monarch":  { damage: 8, durability: 1200, enchantValue: 14, stealthMultiplier: 1.75 },
-      "arise:blade_headsman": { damage: 8, durability: 1200, enchantValue: 14, stealthMultiplier: 1.75 },
-      "arise:blade_void":     { damage: 8, durability: 1200, enchantValue: 14, stealthMultiplier: 1.75 },
+      "arise:blade_shadow":   { damage: 8, durability: 1200, stealthMultiplier: 1.75 },
+      "arise:blade_serpent":  { damage: 8, durability: 1200, stealthMultiplier: 1.75 },
+      "arise:blade_monarch":  { damage: 8, durability: 1200, stealthMultiplier: 1.75 },
+      "arise:blade_headsman": { damage: 8, durability: 1200, stealthMultiplier: 1.75 },
+      "arise:blade_void":     { damage: 8, durability: 1200, stealthMultiplier: 1.75 },
     },
   },
 

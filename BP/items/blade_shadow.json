@@ -25,8 +25,8 @@
         }
       },
       "minecraft:enchantable": {
-        "slot": "sword",
-        "value": 14
+        "slot": "none",
+        "value": 0
       }
     }
   }

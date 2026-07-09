@@ -12,7 +12,8 @@ Ids usados:
 
 Componentes de item:
 
-- `minecraft:enchantable` com `slot: "sword"` permite encantamentos vanilla de espada, como Afiacao, Saque e Aspecto Flamejante. Durabilidade e Remendo dependem do item ter `minecraft:durability`.
+- As adagas declaram `minecraft:enchantable` com `slot: "none"` e `value: 0`. A documentacao oficial descreve esse componente como o suporte para encantamentos no item e lista `none` como slot valido; isso remove a adaga das categorias usadas pela mesa/bigorna do player.
+- Encantamentos em adagas sao exclusivos de loot: Subfases 2/3 devem gerar o item ja encantado pela tabela/rotina de loot, sem depender de interacao do player com mesa ou bigorna. Nao usar `slot: "sword"` na adaga base.
 - `minecraft:damage` define dano 8, acima da espada de diamante indicada na spec.
 - `minecraft:durability` define durabilidade 1200 e perda de durabilidade no uso.
 
@@ -23,3 +24,8 @@ Limite de velocidade:
 Bônus furtivo:
 
 - A API estavel nao oferece uma forma robusta de saber se o alvo esta "de costas" em todos os casos. A Subfase 1 usa o proxy da spec: se o jogador estiver agachado no momento do acerto com uma adaga, aplica dano extra por script.
+
+Sanidade para Android:
+
+- `/give @s arise:blade_shadow` deve entregar uma adaga sem opcoes de encantamento na mesa e sem aceitar novos encantamentos pela bigorna.
+- Uma adaga gerada por loot como item ja encantado, por exemplo com Afiacao IV nas Subfases 2/3, deve manter brilho/encantamento e aplicar o dano do encantamento. A adaga base usa `slot: "none"` para separar o suporte de encantamento via loot da interacao de encantamento do player.
