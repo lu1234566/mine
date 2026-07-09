@@ -4,7 +4,7 @@
 // marco visível, entrada física e baú final finito.
 // ============================================================
 
-import { world, system, ItemStack } from "@minecraft/server";
+import { world, ItemStack } from "@minecraft/server";
 import { CONFIG } from "../config.js";
 import { perm, setBlock, fillBox, clearBox, dimensionHeightRange } from "../dungeons/arenaBuilder.js";
 
@@ -12,7 +12,6 @@ const NS = CONFIG.NAMESPACE;
 const D = CONFIG.DUNGEONS;
 const DP_DUNGEONS = `${NS}:${D.DP_KEY}`;
 const OVERWORLD = "minecraft:overworld";
-const DEBUG_DUNGEON_EVENT = `${NS}:debug_dungeon`;
 
 const sessionFailed = [];
 
@@ -30,6 +29,8 @@ const P = {
   crackedDeepslate: () => perm("minecraft:cracked_deepslate_bricks"),
   cobbledDeepslate: () => perm("minecraft:cobbled_deepslate"),
   soulTorch: () => perm("minecraft:soul_torch"),
+  seaLantern: () => perm("minecraft:sea_lantern"),
+  amethyst: () => perm("minecraft:amethyst_block"),
 };
 
 const BAD_SURFACE = new Set([
@@ -216,6 +217,15 @@ function dungeonBounds(surface) {
   };
 }
 
+function markerBeamStart(surface) {
+  return surface.y + 10;
+}
+
+function markerBeamTop(surface) {
+  const top = surface.y + D.MARKER_BEAM_HEIGHT;
+  return Math.min(top, 319);
+}
+
 function assertLoadedBlock(dim, pos) {
   const block = dim.getBlock({
     x: Math.floor(pos.x),
@@ -248,6 +258,9 @@ function preflightDungeonVolume(dim, surface) {
 
   // Valida todos os volumes usados antes de escrever qualquer bloco.
   assertLoadedBox(dim, rel(surface, -3, -1, -3), rel(surface, 3, 9, 3)); // marco
+  if (markerBeamStart(surface) <= markerBeamTop(surface)) {
+    assertLoadedBox(dim, rel(surface, -1, 10, -1), rel(surface, 1, markerBeamTop(surface), 1)); // feixe
+  }
   assertLoadedBox(dim, { x: surface.x - 2, y: surface.y - 8, z: surface.z + 3 },
     { x: surface.x + 2, y: surface.y + 3, z: surface.z + 13 }); // entrada/tunel
   assertLoadedBox(dim, room, rel(room, 12, 6, 12)); // sala
@@ -259,6 +272,9 @@ function cleanupPartialDungeon(dim, surface) {
   try {
     const b = dungeonBounds(surface);
     clearBox(dim, b.from, b.to);
+    if (markerBeamStart(surface) <= markerBeamTop(surface)) {
+      clearBox(dim, rel(surface, -1, 10, -1), rel(surface, 1, markerBeamTop(surface), 1));
+    }
     const center = { x: surface.x, y: surface.y - 8, z: surface.z + 19 };
     for (const e of dim.getEntities({ tags: [D.TAG], location: center, maxDistance: 32 })) {
       e.remove();
@@ -279,6 +295,16 @@ function buildMarker(dim, surface) {
   for (const [dx, dz] of [[-2, -2], [2, -2], [-2, 2], [2, 2]]) {
     setBlock(dim, rel(surface, dx, 0, dz), P.cryingObsidian());
     setBlock(dim, rel(surface, dx, 1, dz), P.soulTorch());
+  }
+
+  for (let y = markerBeamStart(surface); y <= markerBeamTop(surface); y++) {
+    setBlock(dim, rel(surface, 0, y, 0), y % 6 === 0 ? P.seaLantern() : P.amethyst());
+    if (y % 3 === 1) {
+      setBlock(dim, rel(surface, 1, y, 0), P.seaLantern());
+      setBlock(dim, rel(surface, -1, y, 0), P.seaLantern());
+      setBlock(dim, rel(surface, 0, y, 1), P.seaLantern());
+      setBlock(dim, rel(surface, 0, y, -1), P.seaLantern());
+    }
   }
 }
 
@@ -459,61 +485,6 @@ function tryGenerateNear(player) {
   console.error("[ARISE] Regiao de dungeon sem candidato valido: " + id + " (" + lastError + ")");
 }
 
-function debugDungeonCandidates(player) {
-  const x = Math.floor(player.location.x);
-  const z = Math.floor(player.location.z);
-  return [
-    { x, z: z - 18 },
-    { x: x + 18, z: z - 18 },
-    { x: x - 18, z: z - 18 },
-    { x: x + 18, z },
-    { x: x - 18, z },
-    { x, z: z + 18 },
-  ];
-}
-
-function forceDebugDungeon(player) {
-  if (!player || player.dimension.id !== OVERWORLD) return;
-  const dim = player.dimension;
-  const list = loadDungeons();
-  if (list.length >= D.MAX_STORED) {
-    player.sendMessage(CONFIG.MESSAGES.SYSTEM_PREFIX + "§cLimite de dungeons persistidas atingido.");
-    return;
-  }
-
-  let lastError = "sem ponto valido";
-  for (const c of debugDungeonCandidates(player)) {
-    try {
-      const surface = findSurface(dim, c.x, c.z, player.location.y);
-      if (!surface) {
-        lastError = "superficie nao encontrada";
-        continue;
-      }
-      if (hasPlayerConstruction(dim, surface)) {
-        lastError = "construcao do jogador perto demais";
-        continue;
-      }
-
-      const r = regionFor(surface);
-      const meta = buildDungeon(dim, surface, r);
-      meta.debug = true;
-      meta.id = `debug:${Date.now()}:${surface.x},${surface.z}`;
-      list.push(meta);
-      saveDungeons(list);
-      player.sendMessage(CONFIG.MESSAGES.SYSTEM_PREFIX +
-        `§aDungeon debug gerada em ${surface.x}, ${surface.y}, ${surface.z}.`);
-      return;
-    } catch (e) {
-      lastError = String(e);
-      console.error("[ARISE] Falha em debug_dungeon: " + e);
-    }
-  }
-
-  player.sendMessage(CONFIG.MESSAGES.SYSTEM_PREFIX +
-    "§cNao foi possivel gerar dungeon debug sem risco de chunk descarregado. " +
-    `Tente em area aberta. (${lastError})`);
-}
-
 function samePos(a, b) {
   return a && b && a.x === b.x && a.y === b.y && a.z === b.z;
 }
@@ -539,15 +510,6 @@ export function initDungeons() {
     }
   });
 
-  const scriptEvent = system.afterEvents?.scriptEventReceive;
-  if (scriptEvent?.subscribe) scriptEvent.subscribe((event) => {
-    try {
-      if (event.id !== DEBUG_DUNGEON_EVENT) return;
-      forceDebugDungeon(event.sourceEntity);
-    } catch (e) {
-      console.error("[ARISE] Erro em debug_dungeon: " + e);
-    }
-  });
 }
 
 export function tickDungeons(ciclo) {

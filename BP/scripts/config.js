@@ -443,6 +443,7 @@ export const CONFIG = {
     SPAWN_ATTEMPTS: 8,        // tenta pontos próximos antes de desistir da região
     SURFACE_SCAN_UP: 72,
     SURFACE_SCAN_DOWN: 96,
+    MARKER_BEAM_HEIGHT: 72,   // coluna de ametista/sea lantern acima do obelisco para atravessar copas
     MAX_STORED: 120,          // teto defensivo para a dynamic property de dungeons geradas
     LOOT_TABLE: "chests/arise_exploration_dungeon",
     TAG: "arise_dungeon",
