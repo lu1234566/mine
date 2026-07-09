@@ -12,8 +12,8 @@ Ids usados:
 
 Componentes de item:
 
-- As adagas declaram `minecraft:enchantable` com `slot: "none"` e `value: 0`. A documentacao oficial descreve esse componente como o suporte para encantamentos no item e lista `none` como slot valido; isso remove a adaga das categorias usadas pela mesa/bigorna do player.
-- Encantamentos em adagas sao exclusivos de loot: Subfases 2/3 devem gerar o item ja encantado pela tabela/rotina de loot, sem depender de interacao do player com mesa ou bigorna. Nao usar `slot: "sword"` na adaga base.
+- As adagas declaram `minecraft:enchantable` com `slot: "sword"` e `value: 0`. A documentacao oficial descreve o componente como o suporte para encantamentos no item, `slot` como a categoria de compatibilidade e `value` como o valor de encantamento minimo 0.
+- Candidato tecnico atual: Caminho B. `slot: "sword"` deve permitir que a Script API aplique encantamentos de espada como Afiacao; `value: 0` tenta remover a rota vanilla da mesa por nao oferecer valor de encantamento. Este ponto precisa ser confirmado no Android com o teste temporario abaixo.
 - `minecraft:damage` define dano 8, acima da espada de diamante indicada na spec.
 - `minecraft:durability` define durabilidade 1200 e perda de durabilidade no uso.
 
@@ -28,11 +28,11 @@ Bônus furtivo:
 Sanidade para Android:
 
 - `/give @s arise:blade_shadow` deve entregar uma adaga sem opcoes de encantamento na mesa e sem aceitar novos encantamentos pela bigorna.
-- Uma adaga gerada por loot como item ja encantado, por exemplo com Afiacao IV nas Subfases 2/3, deve manter brilho/encantamento e aplicar o dano do encantamento. A adaga base usa `slot: "none"` para separar o suporte de encantamento via loot da interacao de encantamento do player.
+- Uma adaga gerada por loot como item ja encantado, por exemplo com Afiacao IV nas Subfases 2/3, deve manter brilho/encantamento e aplicar o dano do encantamento.
 
 Teste temporario de loot encantado:
 
 - Com cheats/comandos habilitados no mundo de teste Android, execute: `/scriptevent arise:debug_blade_loot`
 - Resultado esperado: o chat mostra que a Adaga Sombria de teste foi entregue com Afiacao IV, e o item aparece com brilho/encantamento.
-- Se o chat mostrar que `slot: "none"` recusou Afiacao IV por API de loot/script, a solucao precisa mudar antes das Subfases 2/3.
+- Se o chat mostrar que `sword/value 0` recusou Afiacao IV por API de loot/script, o Caminho B falhou e a solucao precisa mudar antes das Subfases 2/3.
 - Depois, compare com `/give @s arise:blade_shadow`: a adaga base nao deve oferecer encantamento na mesa nem aceitar encantamento novo pela bigorna.

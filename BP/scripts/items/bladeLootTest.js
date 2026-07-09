@@ -8,7 +8,7 @@
 import {
   system,
   ItemStack,
-  EnchantmentTypes,
+  EnchantmentType,
 } from "@minecraft/server";
 import { CONFIG } from "../config.js";
 
@@ -32,8 +32,11 @@ function makeSharpnessBlade(player) {
     return undefined;
   }
 
-  const sharpness = EnchantmentTypes.get("sharpness") ?? EnchantmentTypes.get("minecraft:sharpness");
-  if (!sharpness) {
+  let sharpness;
+  try {
+    sharpness = new EnchantmentType("sharpness");
+  } catch (e) {
+    console.error("[ARISE] Erro ao criar EnchantmentType(sharpness): " + e);
     player.sendMessage(MSG + "§cTeste falhou: encantamento Afiação nao existe neste runtime.");
     return undefined;
   }
@@ -41,7 +44,7 @@ function makeSharpnessBlade(player) {
   const enchantment = { type: sharpness, level: 4 };
   const canAdd = ench.canAddEnchantment(enchantment);
   if (!canAdd) {
-    player.sendMessage(MSG + "§cTeste falhou: slot none recusou Afiação IV por API de loot/script.");
+    player.sendMessage(MSG + "§cTeste falhou: sword/value 0 recusou Afiação IV por API de loot/script.");
     player.sendMessage(MSG + "§7A solução precisa mudar antes das Subfases 2/3.");
     return undefined;
   }
