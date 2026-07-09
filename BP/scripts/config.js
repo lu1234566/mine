@@ -378,6 +378,76 @@ export const CONFIG = {
         mobEffects: [{ type: "resistance", amplifier: 1 }, { type: "strength", amplifier: 1 }, { type: "speed", amplifier: 0 }],
       },
     },
+    LOOT: {
+      E: {
+        rolls: [
+          { chance: 0.30, item: "minecraft:bread", min: 2, max: 4, label: "Pão" },
+          { chance: 0.12, item: "minecraft:iron_boots", label: "Botas de Ferro" },
+        ],
+      },
+      D: {
+        rolls: [
+          { chance: 0.35, item: "minecraft:cooked_beef", min: 2, max: 4, label: "Bife" },
+          { chance: 0.18, item: "minecraft:iron_leggings", label: "Calças de Ferro" },
+          { chance: 0.10, item: "minecraft:golden_apple", label: "Maçã Dourada" },
+        ],
+      },
+      C: {
+        rolls: [
+          { chance: 0.35, item: "minecraft:golden_apple", label: "Maçã Dourada" },
+          { chance: 0.22, item: "minecraft:iron_chestplate", label: "Peitoral de Ferro" },
+          { chance: 0.12, item: "minecraft:iron_sword", label: "Espada de Ferro" },
+        ],
+      },
+      B: {
+        rolls: [
+          { chance: 0.30, item: "minecraft:diamond_boots", label: "Botas de Diamante" },
+          { chance: 0.22, item: "minecraft:diamond_leggings", label: "Calças de Diamante" },
+          { chance: 0.25, item: "arise:blade_shadow", label: "Adaga Sombria" },
+          {
+            chance: 0.18, item: "minecraft:diamond_sword", label: "Espada de Diamante Encantada",
+            enchantments: [{ id: "minecraft:sharpness", level: 2 }, { id: "minecraft:unbreaking", level: 2 }],
+          },
+        ],
+      },
+      A: {
+        rolls: [
+          {
+            chance: 0.55, item: "arise:blade_shadow", label: "Adaga Sombria Encantada",
+            lore: ["§7Drop de Portal Rank A", "§5Status: Assassino"],
+            enchantments: [{ id: "minecraft:sharpness", level: 4 }, { id: "minecraft:unbreaking", level: 3 }],
+          },
+          {
+            chance: 0.50, item: "minecraft:diamond_chestplate", label: "Peitoral de Diamante Encantado",
+            enchantments: [{ id: "minecraft:protection", level: 3 }, { id: "minecraft:unbreaking", level: 3 }],
+          },
+          { chance: 0.18, item: "arise:blade_serpent", label: "Adaga da Serpente" },
+          { chance: 0.18, item: "arise:blade_headsman", label: "Adaga do Algoz" },
+        ],
+      },
+      S: {
+        rolls: [
+          {
+            chance: 1.00, item: "arise:blade_shadow", label: "Adaga Sombria Encantada",
+            lore: ["§7Drop de Portal Rank S", "§5Status: Executor das Sombras"],
+            enchantments: [{ id: "minecraft:sharpness", level: 5 }, { id: "minecraft:unbreaking", level: 3 }],
+          },
+          {
+            chance: 0.75, item: "minecraft:diamond_chestplate", label: "Peitoral de Diamante Encantado",
+            enchantments: [{ id: "minecraft:protection", level: 4 }, { id: "minecraft:unbreaking", level: 3 }],
+          },
+          {
+            chance: 0.35, item: "arise:blade_void", label: "Adaga do Vazio Encantada",
+            lore: ["§7Drop de Portal Rank S", "§5Status: Vazio"],
+            enchantments: [{ id: "minecraft:sharpness", level: 5 }, { id: "minecraft:unbreaking", level: 3 }],
+          },
+          {
+            chance: 0.08, item: "arise:blade_monarch", label: "Adaga do Monarca",
+            lore: ["§6Raridade máxima: Portal Rank S"],
+          },
+        ],
+      },
+    },
     MOB_EFFECT_DURATION: 12000, // ticks (10 min, cobre a instância)
   },
 

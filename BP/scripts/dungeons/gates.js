@@ -9,7 +9,7 @@
 // e são limpos no fim/abandono.
 // ============================================================
 
-import { world, system, EquipmentSlot } from "@minecraft/server";
+import { world, system, EquipmentSlot, EnchantmentTypes, ItemStack } from "@minecraft/server";
 import { CONFIG } from "../config.js";
 import { addXp, giveItem } from "../player/stats.js";
 import { arenaSizeFor, buildArena, clamp, clearBox, clearGateArena, dimensionHeightRange } from "./arenaBuilder.js";
@@ -284,6 +284,63 @@ function buildGateInstanceArena() {
   }
 }
 
+function rollAmount(entry) {
+  const min = entry.min ?? entry.amount ?? 1;
+  const max = entry.max ?? entry.amount ?? min;
+  return min + Math.floor(Math.random() * (max - min + 1));
+}
+
+function applyEnchantments(item, entry) {
+  const enchantable = item.getComponent("minecraft:enchantable");
+  if (!enchantable || !entry.enchantments) return;
+
+  for (const enchantment of entry.enchantments) {
+    try {
+      const type = EnchantmentTypes.get(enchantment.id);
+      if (!type) continue;
+      enchantable.addEnchantment({ type, level: enchantment.level });
+    } catch (e) {
+      console.error("[ARISE] Erro ao encantar recompensa do portal: " + e);
+    }
+  }
+}
+
+function makeLootItem(entry) {
+  const item = new ItemStack(entry.item, rollAmount(entry));
+  if (entry.lore) item.setLore(entry.lore);
+  applyEnchantments(item, entry);
+  return item;
+}
+
+function giveItemStack(player, item) {
+  try {
+    const inv = player.getComponent("minecraft:inventory")?.container;
+    if (!inv) {
+      player.dimension.spawnItem(item, player.location);
+      return;
+    }
+    const leftover = inv.addItem(item);
+    if (leftover) player.dimension.spawnItem(leftover, player.location);
+  } catch (e) {
+    console.error("[ARISE] Erro ao entregar item de loot do portal: " + e);
+    try { player.dimension.spawnItem(item, player.location); } catch { /* sem fallback seguro */ }
+  }
+}
+
+function rollRankLoot(player, rank) {
+  const table = G.LOOT?.[rank];
+  if (!table?.rolls) return [];
+
+  const drops = [];
+  for (const entry of table.rolls) {
+    if (Math.random() >= entry.chance) continue;
+    const item = makeLootItem(entry);
+    giveItemStack(player, item);
+    drops.push(`${entry.label ?? entry.item}${item.amount > 1 ? ` x${item.amount}` : ""}`);
+  }
+  return drops;
+}
+
 // ---------- vitória ----------
 function onBossKilled() {
   if (!gate || gate.phase === "reward") return;
@@ -304,6 +361,10 @@ function onBossKilled() {
       if (cfg.upgradeKey && Math.random() < cfg.upgradeChance) {
         giveItem(player, cfg.upgradeKey, 1);
         extra += " §aUma chave de rank superior caiu!";
+      }
+      const drops = rollRankLoot(player, gate.rank);
+      if (drops.length > 0) {
+        extra += ` §dLoot: ${drops.join(", ")}.`;
       }
       player.sendMessage(MSG + `§aPortal Rank ${gate.rank} conquistado! ` + extra);
     } catch (e) {

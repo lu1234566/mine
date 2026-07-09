@@ -37,3 +37,12 @@ As cinco variantes sao cosmeticas nesta subfase. Todas usam os mesmos stats base
 - O dano base deve superar a espada de diamante.
 - Agachar e acertar um mob deve disparar o bonus furtivo.
 - A durabilidade deve cair com uso.
+
+## Subfase 3 - Loot por rank nos portoes
+
+- `CONFIG.GATES.LOOT` define recompensas extras por rank sem alterar arena, ondas, chefe ou conclusao do portal.
+- Ranks E-C mantem o loop base de XP + cristais + chance de chave superior, com extras leves: consumiveis e pequenas chances de armadura de ferro.
+- Ranks B-A aumentam a chance de armadura de diamante, adaga base e itens encantados.
+- Ranks A-S sao a fonte de topo: adagas e armaduras encantadas por Script API, usando `minecraft:enchantable` + `EnchantmentTypes.get(...)` + `addEnchantment(...)`.
+- As variantes cosmeticas entram como raridade de progressao; a Adaga do Monarca e exclusiva e rarissima no Portal S.
+- A recompensa tenta entrar no inventario do jogador; se nao houver espaco, o item cai aos pes do player.

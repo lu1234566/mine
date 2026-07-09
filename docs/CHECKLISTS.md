@@ -171,3 +171,13 @@ Nenhuma fase exige toggle experimental — se o jogo pedir, é bug: reporte.
 7. Confirmar que a distância mínima entre dungeons continua valendo: explorar áreas próximas não deve amontoar várias dungeons.
 8. Conferir Log de Conteúdo: erro de chunk descarregado pode aparecer como candidato recusado, mas não deve haver dungeon persistida nem lixo parcial, incluindo feixe sem dungeon.
 9. Confirmar que não existe caminho de comando/debug para gerar dungeon grátis no pack final.
+
+## Fase 8E-C — Loot por rank nos portões (v0.8.24)
+
+1. Reimportar o pack → na tela de packs a versão deve mostrar **0.8.24**. Se mostrar antiga, remova o pack anterior e importe o novo `.mcaddon`.
+2. Concluir portões Rank E e C; confirmar XP + cristais como antes, chance de chave superior e loot leve escalando entre consumíveis/ferro.
+3. Concluir Portal Rank A; confirmar chance de armadura de diamante encantada e adaga encantada por script.
+4. Concluir Portal Rank S; confirmar adaga encantada garantida, chance alta de armadura encantada e chance rara de variante de topo.
+5. Repetir Portal Rank S até confirmar a variante rara **Adaga do Monarca**.
+6. Encher o inventário e concluir um portal; confirmar que recompensas extras caem no chão sem depender de cheats/comandos.
+7. Conferir Log de Conteúdo: nenhum erro `[ARISE]` em encantamento, entrega de item ou fechamento do portal.
