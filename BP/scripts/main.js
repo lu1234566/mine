@@ -16,7 +16,6 @@ import { initShadows, tickShadows } from "./skills/shadowArmy.js";
 import { initGates, tickGates } from "./dungeons/gates.js";
 import { initBreaks, tickBreaks } from "./dungeons/breaks.js";
 import { initBlades } from "./items/blades.js";
-import { initBladeLootTest } from "./items/bladeLootTest.js";
 import { initMenus } from "./ui/menus.js";
 
 const NS = CONFIG.NAMESPACE;
@@ -39,7 +38,6 @@ initClasses();
 initGates();
 initBreaks();
 initBlades();
-initBladeLootTest();
 
 // ------------------------------------------------------------
 // Entrada do jogador: despertar (1ª vez) + entrega do Núcleo
