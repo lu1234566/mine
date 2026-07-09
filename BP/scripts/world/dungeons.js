@@ -6,12 +6,13 @@
 
 import { world, system, ItemStack } from "@minecraft/server";
 import { CONFIG } from "../config.js";
-import { perm, setBlock, fillBox, dimensionHeightRange } from "../dungeons/arenaBuilder.js";
+import { perm, setBlock, fillBox, clearBox, dimensionHeightRange } from "../dungeons/arenaBuilder.js";
 
 const NS = CONFIG.NAMESPACE;
 const D = CONFIG.DUNGEONS;
 const DP_DUNGEONS = `${NS}:${D.DP_KEY}`;
 const OVERWORLD = "minecraft:overworld";
+const DEBUG_DUNGEON_EVENT = `${NS}:debug_dungeon`;
 
 const sessionFailed = [];
 
@@ -188,6 +189,78 @@ function rel(base, dx, dy, dz) {
   return { x: base.x + dx, y: base.y + dy, z: base.z + dz };
 }
 
+function dungeonLayout(surface) {
+  const room = { x: surface.x - 6, y: surface.y - 9, z: surface.z + 13 };
+  const chest = { x: surface.x, y: room.y + 1, z: room.z + 11 };
+  const guardPoints = [
+    rel(room, 3.5, 1, 3.5),
+    rel(room, 9.5, 1, 3.5),
+    rel(room, 3.5, 1, 8.5),
+    rel(room, 9.5, 1, 8.5),
+    rel(room, 6.5, 1, 6.5),
+  ];
+  return { room, chest, guardPoints };
+}
+
+function dungeonBounds(surface) {
+  return {
+    from: { x: surface.x - 6, y: surface.y - 10, z: surface.z - 3 },
+    to: { x: surface.x + 6, y: surface.y + 9, z: surface.z + 25 },
+  };
+}
+
+function assertLoadedBlock(dim, pos) {
+  const block = dim.getBlock({
+    x: Math.floor(pos.x),
+    y: Math.floor(pos.y),
+    z: Math.floor(pos.z),
+  });
+  if (!block) throw new Error("chunk descarregado");
+  return block;
+}
+
+function assertLoadedBox(dim, from, to) {
+  const minX = Math.min(from.x, to.x);
+  const maxX = Math.max(from.x, to.x);
+  const minY = Math.min(from.y, to.y);
+  const maxY = Math.max(from.y, to.y);
+  const minZ = Math.min(from.z, to.z);
+  const maxZ = Math.max(from.z, to.z);
+
+  for (let x = minX; x <= maxX; x++) {
+    for (let y = minY; y <= maxY; y++) {
+      for (let z = minZ; z <= maxZ; z++) {
+        assertLoadedBlock(dim, { x, y, z });
+      }
+    }
+  }
+}
+
+function preflightDungeonVolume(dim, surface) {
+  const { room, chest, guardPoints } = dungeonLayout(surface);
+
+  // Valida todos os volumes usados antes de escrever qualquer bloco.
+  assertLoadedBox(dim, rel(surface, -3, -1, -3), rel(surface, 3, 9, 3)); // marco
+  assertLoadedBox(dim, { x: surface.x - 2, y: surface.y - 8, z: surface.z + 3 },
+    { x: surface.x + 2, y: surface.y + 3, z: surface.z + 13 }); // entrada/tunel
+  assertLoadedBox(dim, room, rel(room, 12, 6, 12)); // sala
+  assertLoadedBlock(dim, chest);
+  for (const point of guardPoints) assertLoadedBlock(dim, point);
+}
+
+function cleanupPartialDungeon(dim, surface) {
+  try {
+    const b = dungeonBounds(surface);
+    clearBox(dim, b.from, b.to);
+    const center = { x: surface.x, y: surface.y - 8, z: surface.z + 19 };
+    for (const e of dim.getEntities({ tags: [D.TAG], location: center, maxDistance: 32 })) {
+      e.remove();
+    }
+  } catch (e) {
+    console.error("[ARISE] Erro ao limpar dungeon parcial: " + e);
+  }
+}
+
 function buildMarker(dim, surface) {
   // Plataforma e obelisco: visível de longe e aponta para a entrada.
   fillBox(dim, rel(surface, -3, -1, -3), rel(surface, 3, -1, 3), P.polishedBlackstone());
@@ -203,8 +276,7 @@ function buildMarker(dim, surface) {
 }
 
 function buildEntranceAndRoom(dim, surface) {
-  const room = { x: surface.x - 6, y: surface.y - 9, z: surface.z + 13 };
-  const chest = { x: surface.x, y: room.y + 1, z: room.z + 11 };
+  const { room, chest } = dungeonLayout(surface);
 
   // Entrada aberta no lado sul do marco, com degraus claros ate a sala.
   for (let i = 0; i <= 10; i++) {
@@ -296,30 +368,35 @@ function fillChestSoon(dim, chestPos) {
   }, 2);
 }
 
-function spawnGuards(dim, room) {
-  const points = [
-    rel(room, 3.5, 1, 3.5),
-    rel(room, 9.5, 1, 3.5),
-    rel(room, 3.5, 1, 8.5),
-    rel(room, 9.5, 1, 8.5),
-    rel(room, 6.5, 1, 6.5),
-  ];
-  for (let i = 0; i < points.length; i++) {
-    try {
-      const typeId = D.MOBS[i % D.MOBS.length];
-      const mob = dim.spawnEntity(typeId, points[i]);
-      mob.addTag(D.TAG);
-    } catch (e) {
-      console.error("[ARISE] Erro ao spawnar guardião de dungeon: " + e);
-    }
+function spawnGuards(dim, guardPoints) {
+  for (let i = 0; i < guardPoints.length; i++) {
+    const typeId = D.MOBS[i % D.MOBS.length];
+    const mob = dim.spawnEntity(typeId, guardPoints[i]);
+    if (!mob) throw new Error("spawnEntity retornou vazio");
+    mob.addTag(D.TAG);
   }
 }
 
 function buildDungeon(dim, surface, r) {
-  buildMarker(dim, surface);
-  const { room, chest } = buildEntranceAndRoom(dim, surface);
-  fillChestSoon(dim, chest);
-  spawnGuards(dim, room);
+  preflightDungeonVolume(dim, surface);
+  const layout = dungeonLayout(surface);
+  let chest;
+  try {
+    buildMarker(dim, surface);
+    ({ chest } = buildEntranceAndRoom(dim, surface));
+
+    const chestBlock = dim.getBlock(chest);
+    if (chestBlock?.typeId !== "minecraft:chest") {
+      throw new Error("bau de dungeon nao confirmado");
+    }
+
+    fillChestSoon(dim, chest);
+    spawnGuards(dim, layout.guardPoints);
+  } catch (e) {
+    cleanupPartialDungeon(dim, surface);
+    throw e;
+  }
+
   return {
     id: `${r.x},${r.z}:${surface.x},${surface.z}`,
     regionX: r.x,
@@ -368,6 +445,61 @@ function tryGenerateNear(player) {
   }
 }
 
+function debugDungeonCandidates(player) {
+  const x = Math.floor(player.location.x);
+  const z = Math.floor(player.location.z);
+  return [
+    { x, z: z - 18 },
+    { x: x + 18, z: z - 18 },
+    { x: x - 18, z: z - 18 },
+    { x: x + 18, z },
+    { x: x - 18, z },
+    { x, z: z + 18 },
+  ];
+}
+
+function forceDebugDungeon(player) {
+  if (!player || player.dimension.id !== OVERWORLD) return;
+  const dim = player.dimension;
+  const list = loadDungeons();
+  if (list.length >= D.MAX_STORED) {
+    player.sendMessage(CONFIG.MESSAGES.SYSTEM_PREFIX + "§cLimite de dungeons persistidas atingido.");
+    return;
+  }
+
+  let lastError = "sem ponto valido";
+  for (const c of debugDungeonCandidates(player)) {
+    try {
+      const surface = findSurface(dim, c.x, c.z, player.location.y);
+      if (!surface) {
+        lastError = "superficie nao encontrada";
+        continue;
+      }
+      if (hasPlayerConstruction(dim, surface)) {
+        lastError = "construcao do jogador perto demais";
+        continue;
+      }
+
+      const r = regionFor(surface);
+      const meta = buildDungeon(dim, surface, r);
+      meta.debug = true;
+      meta.id = `debug:${Date.now()}:${surface.x},${surface.z}`;
+      list.push(meta);
+      saveDungeons(list);
+      player.sendMessage(CONFIG.MESSAGES.SYSTEM_PREFIX +
+        `§aDungeon debug gerada em ${surface.x}, ${surface.y}, ${surface.z}.`);
+      return;
+    } catch (e) {
+      lastError = String(e);
+      console.error("[ARISE] Falha em debug_dungeon: " + e);
+    }
+  }
+
+  player.sendMessage(CONFIG.MESSAGES.SYSTEM_PREFIX +
+    "§cNao foi possivel gerar dungeon debug sem risco de chunk descarregado. " +
+    `Tente em area aberta. (${lastError})`);
+}
+
 function samePos(a, b) {
   return a && b && a.x === b.x && a.y === b.y && a.z === b.z;
 }
@@ -383,14 +515,23 @@ function markLooted(chestPos) {
 
 export function initDungeons() {
   const ev = world.afterEvents.playerInteractWithBlock;
-  if (!ev?.subscribe) return;
-  ev.subscribe((event) => {
+  if (ev?.subscribe) ev.subscribe((event) => {
     try {
       const block = event.block;
       if (block?.typeId !== "minecraft:chest") return;
       markLooted(block.location);
     } catch (e) {
       console.error("[ARISE] Erro em playerInteractWithBlock(dungeons): " + e);
+    }
+  });
+
+  const scriptEvent = system.afterEvents?.scriptEventReceive;
+  if (scriptEvent?.subscribe) scriptEvent.subscribe((event) => {
+    try {
+      if (event.id !== DEBUG_DUNGEON_EVENT) return;
+      forceDebugDungeon(event.sourceEntity);
+    } catch (e) {
+      console.error("[ARISE] Erro em debug_dungeon: " + e);
     }
   });
 }
