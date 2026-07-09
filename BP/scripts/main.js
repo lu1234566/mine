@@ -16,6 +16,7 @@ import { initShadows, tickShadows } from "./skills/shadowArmy.js";
 import { initGates, tickGates } from "./dungeons/gates.js";
 import { initBreaks, tickBreaks } from "./dungeons/breaks.js";
 import { initBlades } from "./items/blades.js";
+import { initDungeons, tickDungeons } from "./world/dungeons.js";
 import { initMenus } from "./ui/menus.js";
 
 const NS = CONFIG.NAMESPACE;
@@ -38,6 +39,7 @@ initClasses();
 initGates();
 initBreaks();
 initBlades();
+initDungeons();
 
 // ------------------------------------------------------------
 // Entrada do jogador: despertar (1ª vez) + entrega do Núcleo
@@ -106,6 +108,7 @@ system.runInterval(() => {
       }
     }
     tickGates(ciclo);
+    tickDungeons(ciclo);
     if (ciclo % CONFIG.INTERVALS.EFFECTS_EVERY === 0) {
       for (const p of players) {
         try {

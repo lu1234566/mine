@@ -432,6 +432,24 @@ export const CONFIG = {
     TAG: "arise_break",
   },
 
+  // --- Dungeons de exploração (Subfase 2) ---
+  DUNGEONS: {
+    CHECK_EVERY: 80,          // 80 ciclos x MAIN(10 ticks) = ~40s
+    REGION_SIZE: 192,         // grade determinística; regiões avaliadas não são persistidas
+    REGION_CHANCE: 0.28,
+    MIN_DISTANCE: 384,        // distância mínima entre dungeons persistidas
+    CANDIDATE_RADIUS_MIN: 52, // longe o bastante para não nascer em cima do player
+    CANDIDATE_RADIUS_MAX: 76,
+    SURFACE_SCAN_UP: 72,
+    SURFACE_SCAN_DOWN: 96,
+    MAX_STORED: 120,          // teto defensivo para a dynamic property de dungeons geradas
+    LOOT_TABLE: "chests/arise_exploration_dungeon",
+    TAG: "arise_dungeon",
+    DP_KEY: "dungeons",
+    SESSION_FAILED_LIMIT: 96,
+    MOBS: ["minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:husk"],
+  },
+
   // --- Fusão de sombras (Fase 8C) ---
   FUSION: {
     REQUIRED: 3,        // sombras iguais (tipo + tier) consumidas por fusão
