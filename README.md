@@ -4,7 +4,7 @@ Sistema de progressão RPG inspirado em mangás de "sistema de níveis" e evolu�
 
 **Alvo:** Minecraft Bedrock — desenvolvido/testado no Android (Chromebook), instalado no Nintendo Switch (desbloqueado) via injeção de save com JKSV.
 
-**Estado atual: loop de equipamento fechado (v0.8.26).** Fases 1–7 completas (despertar, stats/HUD/mana, missão diária + Zona de Penalidade, Devorar/traços, evolução em 2 estágios, Exército de Sombras, Portais E–S) + Fase 8: **habilidades ativas** via Grimório (Impulso, Golpe Fantasma, Ocultação, Dreno Sombrio, Clarividência), **Rupturas** de chaves envelhecidas + Portal Vermelho, **Fusão de sombras** com tier Elite e nomes próprios, texturas por tier/rank para sombras e Guardião, Poção de XP do Sistema, arenas fechadas E-A, dungeons de exploração naturais persistentes com feixe/loot finito e loot de portões por rank com adagas/armaduras encantadas por script. Checklists de teste por fase: `docs/CHECKLISTS.md`.
+**Estado atual: companheiros vivos Subfase 1 (v0.8.27).** Fases 1–7 completas (despertar, stats/HUD/mana, missão diária + Zona de Penalidade, Devorar/traços, evolução em 2 estágios, Exército de Sombras, Portais E–S) + Fase 8: **habilidades ativas** via Grimório (Impulso, Golpe Fantasma, Ocultação, Dreno Sombrio, Clarividência), **Rupturas** de chaves envelhecidas + Portal Vermelho, **Fusão de sombras** com tier Elite e nomes próprios, texturas por tier/rank para sombras e Guardião, Poção de XP do Sistema, arenas fechadas E-A, dungeons de exploração naturais persistentes com feixe/loot finito, loot de portões por rank e **Selos do Nome** para recrutar lobo/gato como companheiros vivos com dreno contínuo de mana. Checklists de teste por fase: `docs/CHECKLISTS.md`.
 
 **Toggles experimentais necessários: NENHUM.** Todas as fases usam apenas módulos estáveis (`@minecraft/server` 1.13.0 e `@minecraft/server-ui` 1.1.0). Se alguma fase futura exigir um experimento, isso será destacado aqui e no checklist da fase.
 
@@ -33,6 +33,19 @@ Regras do projeto: API estável (`@minecraft/server` 1.x), JS puro sem bundler, 
 6. ✅ Portais rank E–C com arena
 7. ✅ Balanceamento, ranks B–S, segunda linha de evolução, polish
 8. ✅ Expansão: 8A skills ativas · 8B rupturas/Portal Vermelho · 8C fusão de sombras · 8D texturas por tier/rank
+9. ✅ Companheiros vivos Subfase 1: Selos do Nome para lobo/gato, follow nativo, dreno de mana e persistência
+
+## Selos do Nome
+
+Ids dos três itens:
+
+| Item | Nome | Obtenção |
+|---|---|---|
+| `arise:seal_common` | Selo Comum | Loot acessível em dungeon/Portal Rank E |
+| `arise:seal_superior` | Selo Superior | Loot menos comum em Portal Rank C |
+| `arise:seal_monarch` | Selo do Monarca | Loot raro em Portal Rank S |
+
+Usar um selo em um `minecraft:wolf` ou `minecraft:cat` consome o item, cobra mana inicial e cria um companheiro vivo que segue o dono e drena mana no loop principal. Sem mana suficiente para manter o dreno, o vínculo é dispensado. Combate de companheiros fica para uma subfase futura.
 
 ---
 

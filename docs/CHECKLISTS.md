@@ -182,3 +182,17 @@ Nenhuma fase exige toggle experimental — se o jogo pedir, é bug: reporte.
 5. Repetir Portal Rank S até confirmar a variante rara **Adaga do Monarca**.
 6. Encher o inventário e concluir um portal; confirmar que recompensas extras caem no chão sem depender de cheats/comandos.
 7. Conferir Log de Conteúdo: nenhum erro `[ARISE]` em encantamento, entrega de item ou fechamento do portal.
+
+## Companheiros vivos — Subfase 1 (v0.8.27)
+
+1. Reimportar o pack → na tela de packs a versão deve mostrar **0.8.27**.
+2. Dar os itens em mundo de teste: `/give @s arise:seal_common`, `/give @s arise:seal_superior`, `/give @s arise:seal_monarch`.
+3. Confirmar ícone e nome dos três selos: **Selo Comum**, **Selo Superior**, **Selo do Monarca**.
+4. Usar cada selo em um `minecraft:wolf` e em um `minecraft:cat`; confirmar consumo do selo, custo inicial de mana, partícula, som, mensagem `Vínculo selado` e nametag com o tier.
+5. Confirmar que raposa/urso polar não recrutam nesta subfase e que mobs hostis também são recusados.
+6. Confirmar que o companheiro segue o dono; afastar mais de ~18 blocos e conferir teleporte para perto.
+7. Observar o HUD: a mana deve cair continuamente enquanto houver companheiro ativo; Comum drena menos que Superior, Superior menos que Monarca.
+8. Ficar sem mana suficiente para o próximo dreno; confirmar mensagem `Sem mana para manter...` e dispensa do companheiro.
+9. Tentar recrutar sem mana para o custo inicial; confirmar recusa clara e que o selo não é consumido.
+10. Recrutar lobo/gato, sair e voltar ao mundo; confirmar persistência do vínculo, nametag/tier e continuidade do dreno.
+11. Conferir Log de Conteúdo: nenhum erro `[ARISE]` durante recrutamento, dreno, dispensa ou relog.

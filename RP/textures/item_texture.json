@@ -14,6 +14,15 @@
     "arise:pocao_xp_sistema": {
       "textures": "textures/items/cristal_essencia"
     },
+    "arise:selo_comum": {
+      "textures": "textures/items/selos/selo_comum"
+    },
+    "arise:selo_superior": {
+      "textures": "textures/items/selos/selo_superior"
+    },
+    "arise:selo_monarca": {
+      "textures": "textures/items/selos/selo_monarca"
+    },
     "arise:skill_impulso": {
       "textures": "textures/items/skills/impulso"
     },

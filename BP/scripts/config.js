@@ -14,6 +14,11 @@ export const CONFIG = {
     SKILL_GRIMOIRE: "arise:skill_grimoire",
     ESSENCE_CRYSTAL: "arise:essence_crystal",
     SYSTEM_XP_POTION: "arise:system_xp_potion",
+    SEALS: {
+      COMMON: "arise:seal_common",
+      SUPERIOR: "arise:seal_superior",
+      MONARCH: "arise:seal_monarch",
+    },
     BLADES: {
       SHADOW: "arise:blade_shadow",
       SERPENT: "arise:blade_serpent",
@@ -145,6 +150,46 @@ export const CONFIG = {
     BASE: 20,
     PER_POINT: 5,       // mana máx. extra por ponto em Mana
     REGEN_PER_LOOP: 1,  // regen a cada ciclo do MAIN (10 ticks) => 2/s
+  },
+
+  // --- Companheiros vivos (Selos do Nome) ---
+  COMPANIONS: {
+    RECRUIT_COST: 10,
+    ELIGIBLE: ["minecraft:wolf", "minecraft:cat"],
+    TAG: "arise_companion",
+    DP_KEY: "companions",
+    FOLLOW_TELEPORT_DIST: 18,
+    FOLLOW_CHECK_EVERY: 4,
+    EFFECT_DURATION: 140,
+    TIERS: {
+      common: {
+        item: "arise:seal_common",
+        nome: "Comum",
+        cor: "§7",
+        drain: 2,
+        healthAmp: 0,
+        strengthAmp: 0,
+        particle: false,
+      },
+      superior: {
+        item: "arise:seal_superior",
+        nome: "Superior",
+        cor: "§9",
+        drain: 4,
+        healthAmp: 1,
+        strengthAmp: 0,
+        particle: false,
+      },
+      monarch: {
+        item: "arise:seal_monarch",
+        nome: "Monarca",
+        cor: "§6",
+        drain: 7,
+        healthAmp: 2,
+        strengthAmp: 1,
+        particle: true,
+      },
+    },
   },
 
   // --- Missão diária ---
@@ -383,6 +428,7 @@ export const CONFIG = {
         rolls: [
           { chance: 0.30, item: "minecraft:bread", min: 2, max: 4, label: "Pão" },
           { chance: 0.12, item: "minecraft:iron_boots", label: "Botas de Ferro" },
+          { chance: 0.18, item: "arise:seal_common", label: "Selo Comum" },
         ],
       },
       D: {
@@ -397,6 +443,7 @@ export const CONFIG = {
           { chance: 0.35, item: "minecraft:golden_apple", label: "Maçã Dourada" },
           { chance: 0.22, item: "minecraft:iron_chestplate", label: "Peitoral de Ferro" },
           { chance: 0.12, item: "minecraft:iron_sword", label: "Espada de Ferro" },
+          { chance: 0.10, item: "arise:seal_superior", label: "Selo Superior" },
         ],
       },
       B: {
@@ -444,6 +491,10 @@ export const CONFIG = {
           {
             chance: 0.08, item: "arise:blade_monarch", label: "Adaga do Monarca",
             lore: ["§6Raridade máxima: Portal Rank S"],
+          },
+          {
+            chance: 0.08, item: "arise:seal_monarch", label: "Selo do Monarca",
+            lore: ["§6Selo raro de companheiro vivo"],
           },
         ],
       },

@@ -42,6 +42,11 @@
         },
         {
           "type": "item",
+          "name": "arise:seal_common",
+          "weight": 18
+        },
+        {
+          "type": "item",
           "name": "minecraft:bread",
           "weight": 24,
           "functions": [

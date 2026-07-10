@@ -13,6 +13,7 @@ import { initSkills } from "./skills/skillRegistry.js";
 import { initDevour, tickTraits } from "./skills/devour.js";
 import { initActiveSkills, ensureGrimoire } from "./skills/activeSkills.js";
 import { initShadows, tickShadows } from "./skills/shadowArmy.js";
+import { initCompanions, tickCompanions } from "./skills/companions.js";
 import { initGates, tickGates } from "./dungeons/gates.js";
 import { initBreaks, tickBreaks } from "./dungeons/breaks.js";
 import { initBlades } from "./items/blades.js";
@@ -35,6 +36,7 @@ initSkills();
 initDevour();
 initActiveSkills();
 initShadows();
+initCompanions();
 initClasses();
 initGates();
 initBreaks();
@@ -101,6 +103,7 @@ system.runInterval(() => {
         // quando exibem HUD própria — o HUD de stats cede a vez
         const emPenalidade = tickDaily(p, ciclo);
         const emRuptura = tickBreaks(p, ciclo);
+        tickCompanions(p, ciclo);
         if (!emPenalidade && !emRuptura) tickHud(p);
         tickShadows(p, ciclo);
       } catch (e) {
